@@ -56,6 +56,7 @@
   .mapcard{flex:1;min-width:0;background:var(--surf);border:1px solid var(--line);
     border-radius:var(--r);position:relative;overflow:hidden;transition:flex-basis .18s ease}
   .mapcard.small{flex:0 0 300px}
+  .mapcard.small .legend{display:none}
   svg#map{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
   svg#map:active{cursor:grabbing}
   .land{fill:var(--land);stroke:var(--landline);stroke-width:1;stroke-linejoin:round}
@@ -488,7 +489,7 @@ gm.addEventListener('mousemove',e=>{
       +`${l.tr.length} trailere${l.out?' · '+l.out+' udlejet videre':''}${l.svc.length?' · service':''}${l.blk.length?' · spærret':''}`;
   tip.style.display='block';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px'});
 gm.addEventListener('mouseleave',()=>tip.style.display='none');
-function focus(l){const [x,y]=proj(l.lng,l.lat),w=VB[2]*.34,h=VB[3]*.34;setView([x-w/2,y-h/2,w,h])}
+function focus(l){const [x,y]=proj(l.lng,l.lat),w=VB[2]*.5,h=VB[3]*.5;setView([x-w/2,y-h/2,w,h])}
 const zoom=f=>{const v=view.slice(),cx=v[0]+v[2]/2,cy=v[1]+v[3]/2;
   v[2]*=f;v[3]*=f;v[0]=cx-v[2]/2;v[1]=cy-v[3]/2;setView(v)};
 zin.onclick=()=>zoom(.75); zout.onclick=()=>zoom(1/.75); zres.onclick=()=>setView(VB.slice());
@@ -575,10 +576,10 @@ function render(){
 
   const ptop=document.getElementById('ptop'),sb=document.getElementById('statbox'),sc=document.getElementById('scroll');
   sb.innerHTML='';
-  const detail=!!(S.trailer||S.book||S.svc||S.form);
+  const detail=!!(S.trailer||S.book||S.svc||S.form||S.sel);
   document.querySelector('.mapcard').classList.toggle('small',detail);
   document.querySelector('aside').classList.toggle('wide',detail);
-  const key=[S.app,S.trailer,S.book,S.svc,S.form].join('|');
+  const key=[S.app,S.trailer,S.book,S.svc,S.form,S.sel].join('|');
   if(key!==S._key){S._key=key;sc.scrollTop=0}
 
   if(S.form)   return formView(ptop,sc);
