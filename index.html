@@ -107,6 +107,10 @@
   .closex:hover{background:var(--bg);color:var(--ink)}
   .dgrid{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:26px;align-items:start}
   .pane{max-width:640px}
+  .consent{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:12px;
+    background:var(--surf2);border:1px solid var(--line);border-radius:11px}
+  .consent input{margin-top:2px;width:17px;height:17px;flex:0 0 17px;accent-color:var(--placed)}
+  .consent span{font-size:12.5px;color:var(--ink2);line-height:1.45}
   .lnk{color:var(--placed);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
   @media (max-width:900px){.dgrid{grid-template-columns:1fr;gap:6px}}
   .ptop h2{margin:0;font-size:19px;font-weight:600;letter-spacing:-.02em}
@@ -428,7 +432,7 @@ function proj(lng,lat){const sx=MAPD.w/(MAPD.maxx-MAPD.minx);
 let view=VB.slice();
 const setView=v=>{view=v;svg.setAttribute('viewBox',v.join(' '))};
 
-let S={app:'kunde',tab:'ledige',sel:null,trailer:null,svc:null,book:null,q:'',form:null,
+let S={app:'kunde',tab:'ledige',sel:null,trailer:null,svc:null,book:null,q:'',form:null,page:null,pending:null,
        dept:null,chk:{},cnotes:{},chkaf:'',mine:[]};
 const isKunde=()=>S.app==='kunde';
 const isGodik=()=>S.app==='godik';
@@ -573,7 +577,8 @@ function render(){
   document.getElementById('legend').innerHTML=kunde
     ?`<div><i style="border-color:var(--godik)"></i>Ledige trailere lige nu</div>
       <div><i style="border-color:#C3C9C0"></i>Ingen ledige på adressen</div>
-      <p>Tallet viser, hvor mange trailere der kan bookes i afdelingen.</p>`
+      <p>Tallet viser, hvor mange trailere der kan bookes i afdelingen.<br>
+      <a class="lnk" data-page="privacy">Sådan behandler vi dine oplysninger</a></p>`
     :`<div><i style="border-color:var(--placed)"></i>Klar i afdelingen</div>
       <div><i style="border-color:var(--sub)"></i>Udlejet videre til slutkunde</div>
       <div><i style="border-color:var(--alert)"></i>Spærret eller service anmodet</div>
@@ -592,12 +597,13 @@ function render(){
 
   const ptop=document.getElementById('ptop'),sb=document.getElementById('statbox'),sc=document.getElementById('scroll');
   sb.innerHTML='';
-  const detail=!!(S.trailer||S.book||S.svc||S.form||S.sel);
+  const detail=!!(S.trailer||S.book||S.svc||S.form||S.sel||S.page);
   document.querySelector('.mapcard').classList.toggle('small',detail);
   document.querySelector('aside').classList.toggle('wide',detail);
-  const key=[S.app,S.trailer,S.book,S.svc,S.form,S.sel].join('|');
+  const key=[S.app,S.trailer,S.book,S.svc,S.form,S.sel,S.page].join('|');
   if(key!==S._key){S._key=key;sc.scrollTop=0}
 
+  if(S.page==='privacy') return privacyView(ptop,sc);
   if(S.form)   return formView(ptop,sc);
   if(S.book)   return bookView(ptop,sc,godik);
   if(S.svc&&!kunde) return svcView(ptop,sc,godik);
@@ -977,7 +983,7 @@ function bookView(ptop,sc,godik){
     <div class="kv"><span>${kunde?'Hentes hos':'Afdeling'}</span><span>${kunde?PARTNER+' '+esc(l.n):'Dagrofa '+esc(l.n)+' · '+l.c}</span></div>
     <div class="kv"><span>Adresse</span><span>${esc(l.a)}<br>${esc(l.z)}</span></div>
     ${kunde?'':`${b.att?`<div class="kv"><span>Kontaktperson</span><span>${esc(b.att)}</span></div>`:''}
-      ${b.tlf?`<div class="kv"><span>Telefon</span><span>${esc(b.tlf)}</span></div>`:''}
+      ${b.tlf?`<div class="kv"><span>Telefon</span><span>${esc(b.tlf)}${b.verificeret?' · bekræftet med kode':''}</span></div>`:''}
       <div class="kv"><span>Brugsadresse</span><span>${b.adr?esc(b.adr)+'<br>'+esc(b.post)+' '+esc(b.by):'ikke oplyst'}</span></div>`}`;
 
   const inspBlock=i=>i
@@ -1038,7 +1044,7 @@ function bookingForm(ptop,sc){
   sc.innerHTML=`<div class="pane">
     <label class="f"><span>Navn</span><input class="i" id="k-att" placeholder="Dit fulde navn"></label>
     <label class="f"><span>Firma, hvis du booker for et firma</span><input class="i" id="k-k" placeholder="Valgfrit"></label>
-    <label class="f"><span>Telefon</span><input class="i" id="k-tlf" inputmode="tel" placeholder="12 34 56 78"></label>
+    <label class="f"><span>Mobilnummer</span><input class="i" id="k-tlf" inputmode="tel" placeholder="12 34 56 78"></label>
     <label class="f"><span>Adresse hvor traileren bruges</span><input class="i" id="k-adr" placeholder="Vej og nummer"></label>
     <div style="display:flex;gap:9px">
       <label class="f" style="flex:0 0 40%"><span>Postnr.</span><input class="i" id="k-post" inputmode="numeric" placeholder="6000"></label>
@@ -1048,24 +1054,90 @@ function bookingForm(ptop,sc){
       <label class="f" style="flex:1"><span>Fra</span><input class="i" type="date" id="k-f" value="${plus(0)}"></label>
       <label class="f" style="flex:1"><span>Til</span><input class="i" type="date" id="k-t" value="${plus(2)}"></label>
     </div>
-    <div class="sub" style="margin-top:10px">Afdelingen bekræfter din booking, og du får besked her på siden.
-      Når du henter traileren, gennemgår du en kort visuel kontrol. Den tager to minutter.</div>
-    <button class="btn" id="k-save">Send booking</button></div>`;
+    <label class="consent"><input type="checkbox" id="k-ok">
+      <span>Jeg accepterer, at ${PARTNER} behandler mit navn, mobilnummer og adresse
+      til denne udlejning. Oplysningerne slettes senest 24 måneder efter aflevering.
+      <a class="lnk" data-page="privacy">Sådan behandler vi dine oplysninger</a></span></label>
+    <div class="sub" style="margin-top:10px">Vi sender en firecifret kode til dit mobilnummer for at
+      bekræfte, at det er dig. Afdelingen bekræfter derefter bookingen.</div>
+    <button class="btn" id="k-save">Fortsæt</button></div>`;
   const g=id=>document.getElementById(id);
   g('k-post').oninput=e=>{const p=POSTNR[e.target.value.trim()];g('k-by').value=p?p[2]:''};
   g('k-save').onclick=()=>{
     const att=g('k-att').value.trim(),tlf=g('k-tlf').value.trim(),adr=g('k-adr').value.trim(),
           post=g('k-post').value.trim(),f=g('k-f').value,ti=g('k-t').value;
-    if(!att||!tlf||!adr||!post) return toast('Udfyld navn, telefon og adresse');
+    if(!att||!tlf||!adr||!post) return toast('Udfyld navn, mobilnummer og adresse');
+    if(!/^[0-9 +]{8,}$/.test(tlf)) return toast('Tjek mobilnummeret');
     if(!POSTNR[post]) return toast('Ukendt postnummer');
     if(!f||!ti||D(ti)<D(f)) return toast('Tjek datoerne');
     if(!freeIn(t.r,f,ti)) return toast('Traileren er optaget i de dage. Vælg andre datoer.');
-    const p=POSTNR[post], o='B-'+(5100+SUBS.filter(b=>String(b.o).startsWith('B-')).length+1);
-    SUBS.push({o,r:t.r,l:t.l,f,t:ti,k:g('k-k').value.trim()||att,att,tlf,adr,post,by:p[2],
-      lat:p[0],lng:p[1],kt:'',st:'Aktiv',fase:'anmodet',oprettet:iso(TODAY)});
-    S.mine.push(o); S.form=null; S.book=o; S.tab='min'; render();
-    toast('Anmodningen er sendt til afdelingen');
+    if(!g('k-ok').checked) return toast('Sæt flueben ved behandling af oplysninger');
+    S.pending={reg:t.r,att,k:g('k-k').value.trim()||att,tlf,adr,post,f,t:ti};
+    S.form='otp'; render();
   };
+}
+
+/* Bekraeftelse af mobilnummeret. Uden den kan hvem som helst booke i andres navn,
+   og linket til bookingen ville kunne aabnes af enhver. */
+function otpForm(ptop,sc){
+  const p=S.pending; if(!p){S.form=null;return render()}
+  const t=byReg(p.reg), l=byLoc(t.l);
+  ptop.innerHTML=`<button class="back" data-back="root">← Fortryd</button>
+    <button class="closex" data-back="root" title="Luk">×</button>
+    <h2>Bekræft dit nummer</h2><p>Vi har sendt en kode til ${esc(p.tlf)}</p>`;
+  sc.innerHTML=`<div class="pane">
+    <label class="f"><span>Firecifret kode</span>
+      <input class="i" id="o-code" inputmode="numeric" maxlength="4" placeholder="1234"
+        style="font-size:24px;letter-spacing:.4em;text-align:center"></label>
+    <div class="sub">I denne demo sendes ingen SMS. Skriv <b>1234</b>.</div>
+    <button class="btn" id="o-ok">Bekræft og send booking</button>
+    <button class="btn ghost" id="o-again">Send koden igen</button>
+    <div class="h3">Hvorfor</div>
+    <div class="sub" style="white-space:normal">Koden knytter bookingen til din telefon.
+      Bagefter kan kun du åbne bookingen og lave den visuelle kontrol, og afdelingen ved,
+      at nummeret er rigtigt, hvis de skal fat i dig.</div></div>`;
+  document.getElementById('o-again').onclick=()=>toast('Ny kode sendt til '+p.tlf);
+  document.getElementById('o-ok').onclick=()=>{
+    const code=document.getElementById('o-code').value.trim();
+    if(code!=='1234') return toast('Forkert kode. Prøv igen.');
+    const pc=POSTNR[p.post], o='B-'+(5100+SUBS.filter(b=>String(b.o).startsWith('B-')).length+1);
+    SUBS.push({o,r:p.reg,l:t.l,f:p.f,t:p.t,k:p.k,att:p.att,tlf:p.tlf,adr:p.adr,post:p.post,
+      by:pc[2],lat:pc[0],lng:pc[1],kt:'',st:'Aktiv',fase:'anmodet',oprettet:iso(TODAY),
+      verificeret:true,samtykke:iso(TODAY)});
+    S.mine.push(o); S.pending=null; S.form=null; S.book=o; S.tab='min'; render();
+    toast('Nummeret er bekræftet. Anmodningen er sendt til afdelingen.');
+  };
+}
+
+/* ---------- persondatapolitik ---------- */
+function privacyView(ptop,sc){
+  ptop.innerHTML=`<button class="back" data-back="root">← Tilbage</button>
+    <button class="closex" data-back="root" title="Luk">×</button>
+    <h2>Sådan behandler vi dine oplysninger</h2><p>${PARTNER} · trailerudlejning</p>`;
+  sc.innerHTML=`<div class="pane">
+    <div class="h3">Hvad vi gemmer</div>
+    <div class="sub" style="white-space:normal">Navn, mobilnummer og den adresse, hvor traileren bruges.
+      Datoerne for udlejningen. Resultatet af den visuelle kontrol, du laver ved afhentning og aflevering,
+      og de fotos du eventuelt vedhæfter.</div>
+    <div class="h3">Hvorfor</div>
+    <div class="sub" style="white-space:normal">For at kunne udlevere traileren til den rigtige person,
+      kontakte dig undervejs, og dokumentere vognens stand før og efter lånet. Grundlaget er den aftale,
+      du indgår, når du booker.</div>
+    <div class="h3">Hvem ser det</div>
+    <div class="sub" style="white-space:normal">Den afdeling, du henter traileren i, og leverandøren af
+      trailerne, som står for service og reparation. Ingen andre kunder kan se dine oplysninger,
+      og vi videregiver dem ikke til markedsføring.</div>
+    <div class="h3">Hvor længe</div>
+    <div class="sub" style="white-space:normal">Navn, nummer og adresse slettes automatisk senest
+      24 måneder efter, at traileren er afleveret. Kontroller og fotos gemmes i samme periode,
+      fordi de er dokumentation for vognens stand.</div>
+    <div class="h3">Cookies</div>
+    <div class="sub" style="white-space:normal">Siden bruger kun den cookie, der holder dig logget
+      på din egen booking. Der er ingen statistik- eller marketingcookies, og derfor beder vi ikke
+      om samtykke til cookies.</div>
+    <div class="h3">Dine rettigheder</div>
+    <div class="sub" style="white-space:normal">Du kan bede om indsigt i, rettelse af eller sletning af
+      dine oplysninger. Skriv til afdelingen, du har lejet hos. Du kan klage til Datatilsynet.</div></div>`;
 }
 
 /* ---------- udlejning oprettet af afdelingen ---------- */
@@ -1202,6 +1274,7 @@ function serviceForm(ptop,sc){
 }
 
 function formView(ptop,sc){
+  if(S.form==='otp')              return otpForm(ptop,sc);
   if(S.form.startsWith('book-'))  return bookingForm(ptop,sc);
   if(S.form.startsWith('check-')) return checkForm(ptop,sc);
   if(S.form.startsWith('udlej'))  return udlejForm(ptop,sc);
@@ -1213,22 +1286,23 @@ function toast(m){const el=document.getElementById('toast');el.textContent=m;el.
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-app],[data-tab],[data-loc],[data-tr],[data-svc],[data-back],[data-form],[data-book],[data-free],[data-order],[data-ok],[data-no],[data-out]');
+  const b=e.target.closest('[data-app],[data-tab],[data-loc],[data-tr],[data-svc],[data-back],[data-form],[data-book],[data-free],[data-order],[data-ok],[data-no],[data-out],[data-page]');
   if(!b)return;
   if(b.dataset.app){
-    S=Object.assign(S,{app:b.dataset.app,sel:null,trailer:null,svc:null,book:null,form:null,dept:null,chk:{},cnotes:{}});
+    S=Object.assign(S,{app:b.dataset.app,sel:null,trailer:null,svc:null,book:null,form:null,page:null,dept:null,chk:{},cnotes:{}});
     S.tab=b.dataset.app==='kunde'?'ledige':'flaade';
     setView(VB.slice());
   }
-  else if(b.dataset.tab){S.tab=b.dataset.tab;S.sel=null;S.trailer=null;S.svc=null;S.book=null;S.form=null;
+  else if(b.dataset.tab){S.tab=b.dataset.tab;S.sel=null;S.trailer=null;S.svc=null;S.book=null;S.form=null;S.page=null;
     if(b.dataset.tab!=='flaade'&&b.dataset.tab!=='ledige')setView(VB.slice());}
-  else if(b.dataset.back){S.svc=null;S.form=null;S.book=null;
+  else if(b.dataset.back){S.svc=null;S.form=null;S.book=null;S.page=null;
     if(b.dataset.back==='loc'&&S.trailer){S.trailer=null}
     else{S.trailer=null;S.sel=null;setView(VB.slice())}}
   else if(b.dataset.loc){S.sel=b.dataset.loc;S.trailer=null;focus(byLoc(b.dataset.loc))}
   else if(b.dataset.tr){const t=byReg(b.dataset.tr);S.trailer=t.r;S.sel=t.l;S.svc=null;S.book=null;focus(byLoc(t.l))}
   else if(b.dataset.svc){S.svc=b.dataset.svc}
   else if(b.dataset.book){S.book=b.dataset.book;S.trailer=null}
+  else if(b.dataset.page){S.page=b.dataset.page;S.form=null}
   else if(b.dataset.ok){
     const x=SUBS.find(v=>v.o===b.dataset.ok);
     x.fase='bekraeftet'; x.bekraeftet=iso(TODAY);
