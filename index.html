@@ -32,6 +32,12 @@
   header{display:flex;align-items:center;gap:18px;padding:11px 18px;background:var(--surf);
     border-bottom:1px solid var(--line);position:relative;z-index:10;flex-wrap:wrap}
   header .logo{height:22px;display:block}
+  .brandtext{font-size:15px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+  .brandtext span{display:block;font-size:11.5px;font-weight:500;color:var(--muted);letter-spacing:0}
+  .mk.free .dot{stroke:var(--godik)}
+  .mk.none .dot{stroke:#C3C9C0}
+  .mk.blocked .dot{stroke:var(--alert)}
+  .row.muted{opacity:.5}
   .seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px}
   .seg button{border:0;background:none;padding:7px 14px;border-radius:8px;font-size:13px;
     font-weight:500;color:var(--muted)}
@@ -205,10 +211,12 @@
 </head>
 <body>
 <header>
-  <img class="logo" src="data:image/png;base64,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" alt="Godik">
+  <img class="logo" id="logo" src="data:image/png;base64,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" alt="Godik">
+  <div class="brandtext" id="brandtext"></div>
   <div class="seg" id="appseg">
-    <button data-app="godik" class="on">Godik Power</button>
-    <button data-app="dagrofa">Dagrofa Foodservice</button>
+    <button data-app="kunde" class="on">Kunde</button>
+    <button data-app="dagrofa">Dagrofa</button>
+    <button data-app="godik">Godik Power</button>
   </div>
   <div class="who" id="who"><i></i><span></span></div>
   <div class="grow"></div>
@@ -326,6 +334,20 @@ let SERVICE=[
   afhent:'',retur:'',besog:'',udfort:'',svar:''}
 ];
 
+
+/* ---------- specifikationer vist til slutkunden ---------- */
+const SPECS={
+  normal:{navn:'Køle- og frysetrailer',
+    rows:[['Indvendige mål','4,00 × 1,80 × 1,90 m'],['Lasteevne','ca. 1.400 kg'],
+      ['Totalvægt','2.700 kg'],['Temperatur','+5 til −18 °C'],['Strøm','230 V, 10 A'],
+      ['Aksler','2 aksler'],['Kørekort','B/E eller B+']]},
+  mini:{navn:'Mini-køletrailer',
+    rows:[['Indvendige mål','2,00 × 1,40 × 1,80 m'],['Lasteevne','ca. 600 kg'],
+      ['Totalvægt','1.300 kg'],['Temperatur','+2 til +10 °C'],['Strøm','230 V, 10 A'],
+      ['Aksler','1 aksel'],['Kørekort','Alm. kørekort B']]}
+};
+const PARTNER='Dagrofa Foodservice';
+
 /* ---------- afledt ---------- */
 const D=s=>new Date(s+'T12:00:00');
 const dk=s=>s?D(s).toLocaleDateString('da-DK',{day:'numeric',month:'short'}):'–';
@@ -350,24 +372,35 @@ function recalc(){
     t.next=t.subs.find(b=>b.state==='Kommende')||null;
     t.svc=SERVICE.find(s=>s.r===t.r&&s.st!=='Afsluttet')||null;
     t.atGodik=!!(t.svc&&t.svc.st==='På værksted');
-    t.here=t.atGodik?null:t.l;                       /* hvor den fysisk står */
+    t.here=t.atGodik?null:t.l;
     t.hist=SERVICE.filter(x=>x.r===t.r&&x.st==='Afsluttet');
+    t.insp=INSPECTIONS.filter(i=>i.r===t.r);
     t.pl=ORDER(t.o);
-    t.state=t.atGodik?'base':t.svc?'service':t.active?'sub':'placed';
+    /* En trailer med en fejlet kontrol er spærret, indtil afdelingen
+       enten selv udbedrer fejlen eller servicen er afsluttet. */
+    t.state=t.atGodik?'base':t.blk?'blocked':t.svc?'service':t.active?'sub':'placed';
+    t.bookable=!!t.here&&!t.svc&&!t.blk;
   });
   LOCS.forEach(l=>{
     l.tr=TRAILERS.filter(t=>t.here===l.c);
+    l.free=l.tr.filter(t=>t.bookable&&!t.active);
     l.unnum=UNNUMBERED.filter(b=>b.l===l.c);
     l.svc=SERVICE.filter(s=>s.l===l.c&&s.st!=='Afsluttet');
+    l.blk=l.tr.filter(t=>t.blk);
     l.out=l.tr.filter(t=>t.active).length;
-    l.insp=INSPECTIONS.filter(i=>i.l===l.c);
-    l.state=l.svc.length?'alert':l.out?'sub':'placed';
+    l.state=l.svc.length||l.blk.length?'alert':l.out?'sub':'placed';
   });
 }
 recalc();
 
-const STATE={base:['var(--base)','På værksted hos Godik, Ejby'],placed:['var(--placed)','Udstationeret hos Dagrofa'],
-  sub:['var(--sub)','Udlejet til slutkunde'],service:['var(--alert)','Service anmodet']};
+const STATE={base:['var(--base)','På værksted hos Godik, Ejby'],placed:['var(--placed)','Klar i afdelingen'],
+  sub:['var(--sub)','Udlejet til slutkunde'],service:['var(--alert)','Service anmodet'],
+  blocked:['var(--alert)','Spærret efter visuel kontrol']};
+
+/* En trailer er ledig i en periode, hvis intet andet dækker de dage. */
+function freeIn(reg,f,t,skip){
+  return !SUBS.some(b=>b.r===reg&&b.o!==skip&&b.st!=='Afsluttet'&&!(D(b.t)<D(f)||D(b.f)>D(t)));
+}
 
 /* ---------- kort ---------- */
 const svg=document.getElementById('map'),gm=document.getElementById('gmark'),
@@ -379,31 +412,50 @@ function proj(lng,lat){const sx=MAPD.w/(MAPD.maxx-MAPD.minx);
 let view=VB.slice();
 const setView=v=>{view=v;svg.setAttribute('viewBox',v.join(' '))};
 
-let S={app:'godik',tab:'flaade',sel:null,trailer:null,svc:null,book:null,q:'',form:null,dept:null,chk:{},cnotes:{},chkaf:''};
-const inScope=c=>S.app==='godik'||!S.dept||S.dept===c;
+let S={app:'kunde',tab:'ledige',sel:null,trailer:null,svc:null,book:null,q:'',form:null,
+       dept:null,chk:{},cnotes:{},chkaf:'',mine:[]};
+const isKunde=()=>S.app==='kunde';
+const isGodik=()=>S.app==='godik';
+const inScope=c=>S.app!=='dagrofa'||!S.dept||S.dept===c;
 const scopeLocs=()=>LOCS.filter(l=>inScope(l.c));
 const scopeTrailers=()=>TRAILERS.filter(t=>inScope(t.l));
 const scopeSubs=()=>SUBS.filter(b=>inScope(b.l));
 const scopeSvc=()=>SERVICE.filter(s=>inScope(s.l));
+const myBookings=()=>SUBS.filter(b=>S.mine.includes(b.o));
 
 function drawMap(){
   const q=S.q.toLowerCase();
+  const kunde=isKunde();
+
+  if(kunde){
+    gl.innerHTML='';
+    gm.innerHTML=LOCS.map(l=>{
+      const [x,y]=proj(l.lng,l.lat), n=l.free.length, r=9.5+Math.min(n,5)*1.8;
+      const hit=!q||l.n.toLowerCase().includes(q)||l.z.toLowerCase().includes(q);
+      const cls=['mk',n?'free':'none',S.sel===l.c?'on':'',(q&&!hit)||!n?'dim':''].join(' ');
+      return `<g class="${cls}" data-loc="${l.c}">
+        <circle class="dot" cx="${x}" cy="${y}" r="${r}"/>
+        <text class="cnt" x="${x}" y="${y}">${n}</text>
+        <text class="lbl" x="${x}" y="${y+r+13+(l.lo||0)}">${l.n}</text></g>`}).join('');
+    return;
+  }
+
   const [hx,hy]=proj(HQ.lng,HQ.lat);
   gl.innerHTML=(!S.sel&&!S.q)?LOCS.map(l=>{const [x,y]=proj(l.lng,l.lat);
     const mx=(hx+x)/2,my=(hy+y)/2-Math.abs(x-hx)*.18;
     return `<path class="link" d="M${hx} ${hy} Q${mx} ${my} ${x} ${y}"/>`}).join(''):'';
-  const home=TRAILERS.filter(t=>t.atGodik).length;
-  const hq=`<g class="hq" data-hq="1">
-    <circle class="halo" cx="${hx}" cy="${hy}" r="21"/>
-    <circle class="badge" cx="${hx}" cy="${hy}" r="12.5"/>
-    <text class="n" x="${hx}" y="${hy+3.8}" fill="#fff">${home}</text>
-    <text class="lbl" x="${hx}" y="${hy+27}">Power</text></g>`;
   const cust=SUBS.filter(b=>b.state==='I gang'&&b.lat&&inScope(b.l)).map(b=>{
     const [x,y]=proj(b.lng,b.lat), l=byLoc(b.l), [lx,ly]=proj(l.lng,l.lat);
     return `<g class="cust" data-book="${b.o}">
       <path class="clink" d="M${lx} ${ly} L${x} ${y}"/>
       <circle cx="${x}" cy="${y}" r="6"/>
       <text x="${x}" y="${y+17}">${esc((b.k||'').split(' ')[0])}</text></g>`}).join('');
+  const home=TRAILERS.filter(t=>t.atGodik).length;
+  const hq=`<g class="hq" data-hq="1">
+    <circle class="halo" cx="${hx}" cy="${hy}" r="21"/>
+    <circle class="badge" cx="${hx}" cy="${hy}" r="12.5"/>
+    <text class="n" x="${hx}" y="${hy+3.8}" fill="#fff">${home}</text>
+    <text class="lbl" x="${hx}" y="${hy+27}">Power</text></g>`;
   gm.innerHTML=hq+cust+LOCS.map(l=>{
     const [x,y]=proj(l.lng,l.lat), r=9.5+Math.min(l.tr.length,5)*1.8;
     const hit=!q||l.n.toLowerCase().includes(q)||l.a.toLowerCase().includes(q)
@@ -415,22 +467,25 @@ function drawMap(){
       <text class="cnt" x="${x}" y="${y}">${l.tr.length}</text>
       <text class="lbl" x="${x}" y="${y+r+13+(l.lo||0)}">${l.n}</text></g>`}).join('');
 }
+
 gm.addEventListener('click',e=>{
   const cb=e.target.closest('[data-book]');
-  if(cb){S.book=cb.dataset.book;S.trailer=null;render();return}
+  if(cb&&!isKunde()){S.book=cb.dataset.book;S.trailer=null;render();return}
   if(e.target.closest('[data-hq]')){S.sel=null;S.trailer=null;S.tab='flaade';setView(VB.slice());return render()}
   const g=e.target.closest('[data-loc]');if(!g)return;
   S.sel=g.dataset.loc;S.trailer=null;S.form=null;focus(byLoc(S.sel));render()});
 gm.addEventListener('mousemove',e=>{
   const h=e.target.closest('[data-hq]');
-  if(h){const n=TRAILERS.filter(t=>t.atGodik).length;
+  if(h&&!isKunde()){const n=TRAILERS.filter(t=>t.atGodik).length;
     tip.innerHTML=`<b>Godik · Ejby</b><br>${HQ.a}, ${HQ.z}<br>${n} trailer${n===1?'':'e'} på værkstedet`;
     tip.style.display='block';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px';return}
   const g=e.target.closest('[data-loc]');
   if(!g){tip.style.display='none';return}
   const l=byLoc(g.dataset.loc);
-  tip.innerHTML=`<b>Dagrofa ${esc(l.n)} · ${l.c}</b><br>${esc(l.a)}, ${esc(l.z)}<br>`
-    +`${l.tr.length} trailere${l.out?' · '+l.out+' udlejet videre':''}${l.svc.length?' · service anmodet':''}`;
+  tip.innerHTML=isKunde()
+    ? `<b>${PARTNER} ${esc(l.n)}</b><br>${esc(l.a)}, ${esc(l.z)}<br>${l.free.length?l.free.length+' ledige trailere':'ingen ledige lige nu'}`
+    : `<b>Dagrofa ${esc(l.n)} · ${l.c}</b><br>${esc(l.a)}, ${esc(l.z)}<br>`
+      +`${l.tr.length} trailere${l.out?' · '+l.out+' udlejet videre':''}${l.svc.length?' · service':''}${l.blk.length?' · spærret':''}`;
   tip.style.display='block';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px'});
 gm.addEventListener('mouseleave',()=>tip.style.display='none');
 function focus(l){const [x,y]=proj(l.lng,l.lat),w=VB[2]*.34,h=VB[3]*.34;setView([x-w/2,y-h/2,w,h])}
@@ -445,16 +500,6 @@ addEventListener('pointerup',()=>drag=null);
 
 /* ---------- byggeklodser ---------- */
 function pill(state){const s=STATE[state];return `<span class="pill"><i style="background:${s[0]}"></i>${s[1]}</span>`}
-function trailerRow(t){
-  const right=t.atGodik?(t.svc.retur?'retur '+dk(t.svc.retur):'på værksted')
-    :t.svc?svcWhen(t.svc)
-    :t.active?`retur ${dk(t.active.t)}`:t.next?`booket ${dk(t.next.f)}`:'hos Dagrofa';
-  return `<div class="row" data-tr="${t.r}">
-    <div class="thumb" style="background-image:url(${IMG[t.t]})"></div>
-    <div class="rm"><div class="reg">${t.r}</div>
-      <div class="sub">${t.t==='mini'?'Mini-køletrailer':'Køle- og frysetrailer'} · ${t.here?byLoc(t.here).n:'Ejby'}</div>
-      ${pill(t.state)}</div><div class="rd">${right}</div></div>`;
-}
 function svcWhen(s){
   if(s.st==='Afsluttet') return 'udført '+dk(s.udfort||s.besog||s.retur||s.at);
   if(s.mode==='onsite') return s.besog?'tekniker '+dk(s.besog):'afventer dato';
@@ -467,30 +512,65 @@ function svcRow(s){
     <span class="pill"><i style="background:${SVCCOL[s.st]}"></i>${s.st}${s.st!=='Afsluttet'?' · '+(s.mode==='onsite'?'tekniker kører ud':'afhentes til Ejby'):''}</span></div>
     <div class="rd">${svcWhen(s)}</div></div>`;
 }
+function trailerRow(t){
+  const right=t.atGodik?(t.svc.retur?'retur '+dk(t.svc.retur):'på værksted')
+    :t.blk?'spærret'
+    :t.svc?svcWhen(t.svc)
+    :t.active?`retur ${dk(t.active.t)}`:t.next?`booket ${dk(t.next.f)}`:'ledig';
+  return `<div class="row" data-tr="${t.r}">
+    <div class="thumb" style="background-image:url(${IMG[t.t]})"></div>
+    <div class="rm"><div class="reg">${t.r}</div>
+      <div class="sub">${SPECS[t.t].navn} · ${t.here?byLoc(t.here).n:'Ejby'}</div>
+      ${pill(t.state)}</div><div class="rd">${right}</div></div>`;
+}
+/* Kunden ser hverken nummerplade, ejer eller driftsstatus. */
+function kundeRow(t){
+  const l=byLoc(t.l);
+  return `<div class="row" data-tr="${t.r}">
+    <div class="thumb" style="background-image:url(${IMG[t.t]})"></div>
+    <div class="rm"><div class="reg">${SPECS[t.t].navn}</div>
+      <div class="sub">${esc(l.n)} · ${esc(l.a)}, ${esc(l.z)}</div>
+      <div class="sub">${SPECS[t.t].rows[0][1]} · ${SPECS[t.t].rows[3][1]}</div></div>
+    <div class="rd">ledig<br>i dag</div></div>`;
+}
 
 /* ---------- panel ---------- */
 function render(){
   recalc(); drawMap();
-  const isG=S.app==='godik';
+  const kunde=isKunde(), godik=isGodik();
+
+  document.getElementById('logo').style.display=kunde?'none':'block';
+  const bt=document.getElementById('brandtext');
+  bt.style.display=kunde?'block':'none';
+  bt.innerHTML=`${PARTNER}<span>Trailerudlejning</span>`;
   document.querySelectorAll('#appseg button').forEach(b=>b.classList.toggle('on',b.dataset.app===S.app));
-  document.getElementById('who').innerHTML=isG
-    ?`<i style="background:var(--ink)"></i><span>Fuld adgang · alle kunder og trailere</span>`
+  document.getElementById('who').innerHTML=
+    kunde?`<span>Sådan ser siden ud for en kunde</span>`
+    :godik?`<i style="background:var(--ink)"></i><span>Fuld adgang · alle kunder og trailere</span>`
     :`<i></i><select class="dept" id="dept"><option value="">Hovedkontor · alle afdelinger</option>`
       +LOCS.map(l=>`<option value="${l.c}" ${S.dept===l.c?'selected':''}>${esc(l.n)} · ${l.c}</option>`).join('')+`</select>`;
-  if(!isG) document.getElementById('dept').onchange=e=>{
+  if(S.app==='dagrofa') document.getElementById('dept').onchange=e=>{
     S.dept=e.target.value||null;S.sel=null;S.trailer=null;S.book=null;S.svc=null;S.form=null;
     setView(VB.slice());render()};
-  document.getElementById('legend').innerHTML=
-    `<div><i style="border-color:var(--placed)"></i>Udstationeret hos Dagrofa</div>
-     <div><i style="border-color:var(--sub)"></i>Udlejet videre til slutkunde</div>
-     <div><i style="border-color:var(--alert)"></i>Service anmodet</div>
-     <div><i style="border-color:#0E9F5B;background:#0E9F5B"></i>Godiks værksted i Ejby</div>
-     <p>Positionen kommer fra den registrerede adresse, ikke fra GPS.</p>`;
 
-  const tabs=isG?[['flaade','Flåde'],['udl','Udlejninger'],['svc','Service'],['api','API']]
-                :[['flaade','Mine trailere'],['udl','Mine udlejninger'],['svc','Service']];
+  document.getElementById('q').placeholder=kunde?'Søg by eller afdeling':'Nummerplade, afdeling eller kunde';
+  document.getElementById('legend').innerHTML=kunde
+    ?`<div><i style="border-color:var(--godik)"></i>Ledige trailere lige nu</div>
+      <div><i style="border-color:#C3C9C0"></i>Ingen ledige på adressen</div>
+      <p>Tallet viser, hvor mange trailere der kan bookes i afdelingen.</p>`
+    :`<div><i style="border-color:var(--placed)"></i>Klar i afdelingen</div>
+      <div><i style="border-color:var(--sub)"></i>Udlejet videre til slutkunde</div>
+      <div><i style="border-color:var(--alert)"></i>Spærret eller service anmodet</div>
+      <div><i style="border-color:var(--godik);background:var(--godik)"></i>Godiks værksted i Ejby</div>
+      <p>Positionen kommer fra den registrerede adresse, ikke fra GPS.</p>`;
+
+  const tabs=kunde?[['ledige','Ledige trailere'],['min','Min booking']]
+    :godik?[['flaade','Flåde'],['udl','Udlejninger'],['kontrol','Kontrol'],['svc','Service'],['api','API']]
+    :[['flaade','Mine trailere'],['udl','Udlejninger'],['kontrol','Kontrol'],['svc','Service']];
   document.getElementById('tabs').innerHTML=tabs.map(([k,l])=>{
-    const n=k==='svc'?scopeSvc().filter(s=>s.st!=='Afsluttet').length:0;
+    const n=k==='svc'?scopeSvc().filter(s=>s.st!=='Afsluttet').length
+      :k==='kontrol'?scopeTrailers().filter(t=>t.blk).length
+      :k==='min'?myBookings().length:0;
     return `<button data-tab="${k}" class="${S.tab===k?'on':''}">${l}${n?' · '+n:''}</button>`}).join('');
 
   const ptop=document.getElementById('ptop'),sb=document.getElementById('statbox'),sc=document.getElementById('scroll');
@@ -498,104 +578,198 @@ function render(){
   const detail=!!(S.trailer||S.book||S.svc||S.form);
   document.querySelector('.mapcard').classList.toggle('small',detail);
   document.querySelector('aside').classList.toggle('wide',detail);
-  const key=[S.trailer,S.book,S.svc,S.form].join('|');
+  const key=[S.app,S.trailer,S.book,S.svc,S.form].join('|');
   if(key!==S._key){S._key=key;sc.scrollTop=0}
+
   if(S.form)   return formView(ptop,sc);
-  if(S.book)   return bookView(ptop,sc,isG);
-  if(S.svc)    return svcView(ptop,sc,isG);
-  if(S.trailer)return trailerView(ptop,sc,isG);
-  if(S.sel)    return locView(ptop,sc);
+  if(S.book)   return bookView(ptop,sc,godik);
+  if(S.svc&&!kunde) return svcView(ptop,sc,godik);
+  if(S.trailer)return kunde?kundeTrailerView(ptop,sc):trailerView(ptop,sc,godik);
+  if(S.sel)    return locView(ptop,sc,kunde);
 
-  if(S.tab==='api'){
-    ptop.innerHTML=`<h2>API mellem Godik og Dagrofa</h2><p>Dagrofa-appen læser og skriver kun gennem disse kald</p>`;
-    sc.innerHTML=`<div class="api">
-      <div><code>GET /v1/trailers?partner=dagrofa</code><br>Trailere udstationeret hos Dagrofa med type, placering og status</div>
-      <div><code>GET /v1/trailers/{reg}</code><br>Én trailer med aktuel placering og igangværende udlejning</div>
-      <div><code>POST /v1/subrentals</code><br>Dagrofa opretter udlejning til slutkunde: trailer, kunde, periode, adresse</div>
-      <div><code>PATCH /v1/subrentals/{id}</code><br>Retur, forlængelse eller annullering</div>
-      <div><code>POST /v1/inspections</code><br>Visuel modtagekontrol med fotos</div>
-      <div><code>POST /v1/service-requests</code><br>Serviceanmodning fra en afdeling</div>
-      <div><code>GET /v1/service-requests?partner=dagrofa</code><br>Status, afhentnings- og returdato fra Godik Power</div>
-      <div><code>webhook service.scheduled</code><br>Godik sender afhentnings- og returdato, når servicen planlægges</div>
-      <div><code>webhook trailer.status_changed</code><br>Besked når en trailer afhentes til værksted eller leveres tilbage</div>
-    </div>
-    <div class="h3">Hvad Dagrofa ikke kan hente</div>
-    <div class="api"><div>Andre Godik-kunder, andre partneres trailere, priser og aftalevilkår, Godiks interne værkstedsnoter og planlægning.</div></div>
-    <div class="h3">Adgang</div>
-    <div class="api"><div>Hver Dagrofa-afdeling har sin egen bruger. Nøglen giver kun adgang til rækker, hvor afdelingen står som lejer. Alle kald logges med afdeling og bruger.</div></div>`;
-    return;
-  }
+  if(kunde) return S.tab==='min'?kundeBookings(ptop,sc):kundeList(ptop,sb,sc);
 
-  if(S.tab==='flaade'){
-    const trs=scopeTrailers(), locs=scopeLocs();
-    ptop.innerHTML=isG?`<h2>Hele flåden</h2><p>${TRAILERS.length} trailere · ${LOCS.length} Dagrofa-afdelinger</p>`
-      :`<h2>Mine trailere</h2><p>${S.dept?'Dagrofa '+esc(byLoc(S.dept).n):'Alle afdelinger'} · lejet af Godik</p>`;
-    sb.innerHTML=`<div class="stats">
-      <div class="st"><b>${trs.length}</b><span>trailere</span></div>
-      <div class="st"><b>${trs.filter(t=>t.active).length}</b><span>udlejet videre</span></div>
-      <div class="st"><b>${trs.filter(t=>t.svc).length}</b><span>service</span></div>
-      <div class="st"><b>${trs.filter(t=>t.atGodik).length}</b><span>i Ejby</span></div></div>`;
-    let list=trs;
-    if(S.q){const q=S.q.toLowerCase();
-      list=list.filter(t=>t.r.toLowerCase().includes(q)||(t.here&&byLoc(t.here).n.toLowerCase().includes(q))
-        ||t.subs.some(b=>b.k.toLowerCase().includes(q)));}
-    sc.innerHTML=(isG?'':`<button class="btn" data-form="udlej">Udlej trailer til slutkunde</button><div style="height:10px"></div>`)
-      +(S.q?'':(locs.length>1?`<div class="h3">Afdelinger</div>`+locs.map(l=>
-        `<div class="row" data-loc="${l.c}"><div class="rm">
-          <div class="reg">${esc(l.n)} <span style="color:var(--muted);font-weight:400">${l.c}</span></div>
-          <div class="sub">${esc(l.a)}, ${esc(l.z)}</div></div>
-          <div class="rd">${l.tr.length} stk.${l.out?'<br>'+l.out+' udlejet':''}${l.svc.length?'<br>service':''}</div></div>`).join(''):'')
-        +`<div class="h3">${isG?'Alle trailere':'Trailere'}</div>`)
-      +(list.length?list.map(trailerRow).join(''):'<div class="sub">Ingen trailere matcher søgningen.</div>');
-  }
-  else if(S.tab==='udl'){
-    const list=scopeSubs();
-    const now=list.filter(b=>b.state==='I gang'), next=list.filter(b=>b.state==='Kommende'),
-          past=list.filter(b=>b.state==='Afsluttet');
-    ptop.innerHTML=isG?`<h2>Udlejninger</h2><p>Dagrofas udlejning videre til slutkunder</p>`
-      :`<h2>Mine udlejninger</h2><p>${S.dept?'Dagrofa '+esc(byLoc(S.dept).n):'Alle afdelinger'}</p>`;
-    const line=b=>`<div class="row" data-book="${b.o}">
-      <div class="rm"><div class="reg" style="font-size:14px">${esc(b.k)}</div>
-        <div class="sub">${b.r||'nummer ikke angivet'} · Dagrofa ${esc(byLoc(b.l).n)}${b.by?' · '+esc(b.by):''}</div></div>
-      <div class="rd">${dk(b.f)} – ${dk(b.t)}</div></div>`;
-    sc.innerHTML=(isG?'':`<button class="btn" data-form="udlej">Ny udlejning</button><div style="height:10px"></div>`)
-      +`<div class="h3">I gang nu (${now.length})</div>${now.map(line).join('')||'<div class="sub">Ingen.</div>'}
-        <div class="h3">Kommende (${next.length})</div>${next.map(line).join('')||'<div class="sub">Ingen.</div>'}
-        <div class="h3">Afsluttet (${past.length})</div>${past.map(line).join('')||'<div class="sub">Ingen.</div>'}`;
-  }
-  else if(S.tab==='svc'){
-    const open=scopeSvc().filter(s=>s.st!=='Afsluttet'),done=scopeSvc().filter(s=>s.st==='Afsluttet');
-    ptop.innerHTML=isG?`<h2>Serviceanmodninger</h2><p>Indkommet fra Dagrofas afdelinger</p>`
-      :`<h2>Service</h2><p>Anmodninger sendt til Godik Power</p>`;
-    sc.innerHTML=(isG?'':`<button class="btn" data-form="new">Anmod om service</button><div style="height:8px"></div>`)
-      +`<div class="h3">Åbne (${open.length})</div>${open.map(svcRow).join('')||'<div class="sub">Ingen åbne anmodninger.</div>'}
-        <div class="h3">Servicehistorik (${done.length})</div>
-        ${done.length?done.map(svcRow).join(''):'<div class="sub">Endnu ingen afsluttet service.</div>'}`;
-  }
+  if(S.tab==='api')     return apiView(ptop,sc);
+  if(S.tab==='kontrol') return kontrolView(ptop,sc,godik);
+  if(S.tab==='flaade')  return fleetView(ptop,sb,sc,godik);
+  if(S.tab==='udl')     return rentalsView(ptop,sc,godik);
+  if(S.tab==='svc')     return serviceView(ptop,sc,godik);
 }
 
-function locView(ptop,sc){
+/* ---------- kunde ---------- */
+function kundeList(ptop,sb,sc){
+  const free=TRAILERS.filter(t=>t.bookable&&!t.active);
+  const q=S.q.toLowerCase();
+  const list=q?free.filter(t=>byLoc(t.l).n.toLowerCase().includes(q)||byLoc(t.l).z.toLowerCase().includes(q)):free;
+  ptop.innerHTML=`<h2>Lej en køletrailer</h2><p>Hentes og afleveres i din ${PARTNER}-afdeling</p>`;
+  sb.innerHTML=`<div class="stats">
+    <div class="st"><b>${free.length}</b><span>ledige nu</span></div>
+    <div class="st"><b>${LOCS.filter(l=>l.free.length).length}</b><span>afdelinger</span></div>
+    <div class="st"><b>2</b><span>størrelser</span></div></div>`;
+  sc.innerHTML=(q?'':`<div class="h3">Afdelinger</div>`+LOCS.map(l=>
+      `<div class="row ${l.free.length?'':'muted'}" data-loc="${l.c}"><div class="rm">
+        <div class="reg">${esc(l.n)}</div><div class="sub">${esc(l.a)}, ${esc(l.z)}</div></div>
+        <div class="rd">${l.free.length?l.free.length+' ledige':'ingen ledige'}</div></div>`).join('')
+      +`<div class="h3">Ledige trailere</div>`)
+    +(list.length?list.map(kundeRow).join('')
+      :'<div class="sub">Ingen ledige trailere lige nu. Prøv en anden afdeling.</div>');
+}
+
+function kundeTrailerView(ptop,sc){
+  const t=byReg(S.trailer),l=byLoc(t.l),sp=SPECS[t.t];
+  ptop.innerHTML=`<button class="back" data-back="root">← Tilbage</button>
+    <button class="closex" data-back="root" title="Luk">×</button>
+    <h2>${sp.navn}</h2><p>${esc(l.n)} · ${esc(l.a)}, ${esc(l.z)}</p>`;
+  const left=`<div class="bigph" style="background-image:url(${IMG[t.t]})"></div>
+    ${t.bookable&&!t.active?`<button class="btn" data-form="book-${t.r}">Book denne trailer</button>`
+      :'<div class="concl wait">Ikke ledig lige nu</div>'}`;
+  const right=`<div class="h3">Specifikationer</div>
+    ${sp.rows.map(([k,v])=>`<div class="kv"><span>${k}</span><span>${v}</span></div>`).join('')}
+    <div class="sub" style="margin-top:8px">Mål og vægt er vejledende.</div>
+    <div class="h3">Afhentning</div>
+    <div class="kv"><span>Adresse</span><span>${esc(l.a)}<br>${esc(l.z)}</span></div>
+    <div class="kv"><span>Afdeling</span><span>${PARTNER} ${esc(l.n)}</span></div>
+    <div class="h3">Sådan foregår det</div>
+    <div class="sub" style="white-space:normal">Du booker her, henter traileren i afdelingen og
+    gennemgår den visuelle kontrol på din telefon, før du kører. Samme kontrol laver du,
+    når du afleverer igen. Kontrollen tager to minutter og kræver hverken bil eller strøm.</div>`;
+  sc.innerHTML=`<div class="dgrid"><div>${left}</div><div>${right}</div></div>`;
+}
+
+function kundeBookings(ptop,sc){
+  const mine=myBookings();
+  ptop.innerHTML=`<h2>Min booking</h2><p>Dine aktive og tidligere bookinger</p>`;
+  sc.innerHTML=mine.length?mine.map(b=>{
+    const t=byReg(b.r);
+    return `<div class="row" data-book="${b.o}"><div class="thumb" style="background-image:url(${IMG[t.t]})"></div>
+      <div class="rm"><div class="reg">${SPECS[t.t].navn}</div>
+      <div class="sub">${esc(byLoc(b.l).n)} · ${dk(b.f)} – ${dk(b.t)}</div>
+      <span class="pill"><i style="background:${b.state==='Afsluttet'?'var(--base)':'var(--placed)'}"></i>${b.state}</span></div>
+      <div class="rd">${b.pickupOk?'afhentet':'ikke afhentet'}</div></div>`}).join('')
+    :'<div class="sub">Du har ingen bookinger endnu. Vælg en trailer under Ledige trailere.</div>';
+}
+
+/* ---------- lister for Dagrofa og Godik ---------- */
+function fleetView(ptop,sb,sc,godik){
+  const trs=scopeTrailers();
+  ptop.innerHTML=godik?`<h2>Hele flåden</h2><p>${TRAILERS.length} trailere · ${LOCS.length} Dagrofa-afdelinger</p>`
+    :`<h2>Mine trailere</h2><p>${S.dept?'Dagrofa '+esc(byLoc(S.dept).n):'Alle afdelinger'}</p>`;
+  sb.innerHTML=`<div class="stats">
+    <div class="st"><b>${trs.length}</b><span>trailere</span></div>
+    <div class="st"><b>${trs.filter(t=>t.bookable&&!t.active).length}</b><span>ledige</span></div>
+    <div class="st"><b>${trs.filter(t=>t.blk).length}</b><span>spærret</span></div>
+    <div class="st"><b>${trs.filter(t=>t.svc).length}</b><span>service</span></div></div>`;
+  let list=trs;
+  if(S.q){const q=S.q.toLowerCase();
+    list=list.filter(t=>t.r.toLowerCase().includes(q)||(t.here&&byLoc(t.here).n.toLowerCase().includes(q))
+      ||t.subs.some(b=>b.k.toLowerCase().includes(q)));}
+  sc.innerHTML=(godik?'':`<button class="btn" data-form="udlej">Opret udlejning for en kunde</button>`)
+    +(S.q?'':`<div class="h3">Afdelinger</div>`+scopeLocs().map(l=>
+      `<div class="row" data-loc="${l.c}"><div class="rm">
+        <div class="reg">${esc(l.n)} <span style="color:var(--muted);font-weight:400">${l.c}</span></div>
+        <div class="sub">${esc(l.a)}, ${esc(l.z)}</div></div>
+        <div class="rd">${l.tr.length} stk.${l.free.length?'<br>'+l.free.length+' ledige':''}</div></div>`).join('')
+      +`<div class="h3">Trailere</div>`)
+    +(list.length?list.map(trailerRow).join(''):'<div class="sub">Ingen trailere matcher søgningen.</div>');
+}
+
+function rentalsView(ptop,sc,godik){
+  const list=scopeSubs();
+  const now=list.filter(b=>b.state==='I gang'),next=list.filter(b=>b.state==='Kommende'),
+        past=list.filter(b=>b.state==='Afsluttet');
+  ptop.innerHTML=`<h2>Udlejninger</h2><p>${godik?'Dagrofas udlejning videre til slutkunder':'Bookinger på egne kunder'}</p>`;
+  const line=b=>`<div class="row" data-book="${b.o}">
+    <div class="rm"><div class="reg" style="font-size:14.5px">${esc(b.k)}</div>
+      <div class="sub">${b.r||'nummer ikke angivet'} · ${esc(byLoc(b.l).n)}${b.by?' · '+esc(b.by):''}</div></div>
+    <div class="rd">${dk(b.f)} – ${dk(b.t)}</div></div>`;
+  sc.innerHTML=(godik?'':`<button class="btn" data-form="udlej">Ny udlejning</button>`)
+    +`<div class="h3">I gang nu (${now.length})</div>${now.map(line).join('')||'<div class="sub">Ingen.</div>'}
+      <div class="h3">Kommende (${next.length})</div>${next.map(line).join('')||'<div class="sub">Ingen.</div>'}
+      <div class="h3">Afsluttet (${past.length})</div>${past.map(line).join('')||'<div class="sub">Ingen.</div>'}`;
+}
+
+/* Kontrol: her ser afdelingen resultatet af kundernes visuelle kontrol
+   og aabner traileren igen, enten selv eller via service. */
+function kontrolView(ptop,sc,godik){
+  const blocked=scopeTrailers().filter(t=>t.blk);
+  const insp=INSPECTIONS.filter(i=>inScope(i.l));
+  ptop.innerHTML=`<h2>Visuel kontrol</h2><p>Resultater fra kundernes gennemgang</p>`;
+  sc.innerHTML=`<div class="h3">Spærrede trailere (${blocked.length})</div>`
+    +(blocked.length?blocked.map(t=>{
+      const b=t.blk;
+      return `<div class="alert"><b>${t.r} · ${esc(byLoc(t.l).n)}</b>
+        <p>${b.phase==='afhentning'?'Fundet ved afhentning':'Fundet ved aflevering'} ${dk(b.at)} af ${esc(b.af)}.<br>
+        ${b.items.map(f=>esc(f.i)+': '+esc(f.note)).join('<br>')}</p>
+        ${godik?'':`<div style="display:flex;gap:9px;margin-top:10px">
+          <button class="btn ghost" style="margin:0" data-free="${t.r}">Fejlen er udbedret – frigiv</button>
+          <button class="btn" style="margin:0" data-order="${t.r}">Bestil service</button></div>`}
+        ${t.svc?`<p style="margin-top:8px">Service anmodet · ${t.svc.st}. Traileren åbner automatisk, når servicen er afsluttet.</p>`:''}
+      </div>`}).join('')
+      :'<div class="sub">Ingen spærrede trailere. Alt kan bookes.</div>')
+    +`<div class="h3">Seneste kontroller (${insp.length})</div>`
+    +(insp.length?insp.map(i=>`<div class="row" style="cursor:default">
+        <div class="rm"><div class="reg" style="font-size:14.5px">${i.r} · ${i.phase==='afhentning'?'ved afhentning':'ved aflevering'}</div>
+        <div class="sub">${i.faults.length?i.faults.map(f=>esc(f.i)).join(' · '):'Alle punkter i orden'}</div>
+        <span class="pill"><i style="background:${i.faults.length?'var(--alert)':'var(--godik)'}"></i>${i.faults.length?'Fejl fundet':'Godkendt'}</span></div>
+        <div class="rd">${dk(i.at)}<br>${esc(i.af)}</div></div>`).join('')
+      :'<div class="sub">Ingen kontroller registreret endnu.</div>');
+}
+
+function serviceView(ptop,sc,godik){
+  const open=scopeSvc().filter(s=>s.st!=='Afsluttet'),done=scopeSvc().filter(s=>s.st==='Afsluttet');
+  ptop.innerHTML=`<h2>Service</h2><p>${godik?'Indkommet fra Dagrofas afdelinger':'Anmodninger sendt til leverandøren'}</p>`;
+  sc.innerHTML=(godik?'':`<button class="btn" data-form="new">Anmod om service</button>`)
+    +`<div class="h3">Åbne (${open.length})</div>${open.map(svcRow).join('')||'<div class="sub">Ingen åbne anmodninger.</div>'}
+      <div class="h3">Servicehistorik (${done.length})</div>${done.length?done.map(svcRow).join(''):'<div class="sub">Endnu ingen afsluttet service.</div>'}`;
+}
+
+function apiView(ptop,sc){
+  ptop.innerHTML=`<h2>API mellem Godik og Dagrofa</h2><p>Dagrofa-appen og kundesiden læser kun gennem disse kald</p>`;
+  sc.innerHTML=`<div class="api">
+    <div><code>GET /v1/public/availability?dept=&from=&to=</code><br>Ledige trailere til kundesiden. Ingen nummerplade, ingen ejer</div>
+    <div><code>POST /v1/public/bookings</code><br>Kunden booker selv</div>
+    <div><code>POST /v1/public/inspections</code><br>Kundens visuelle kontrol ved afhentning og aflevering</div>
+    <div><code>GET /v1/trailers?partner=dagrofa</code><br>Trailere udstationeret hos Dagrofa med status</div>
+    <div><code>POST /v1/subrentals</code><br>Afdelingen opretter en udlejning manuelt</div>
+    <div><code>POST /v1/trailers/{reg}/release</code><br>Afdelingen frigiver en spærret trailer efter selv at have udbedret fejlen</div>
+    <div><code>POST /v1/service-requests</code><br>Serviceanmodning fra en afdeling</div>
+    <div><code>PATCH /v1/service-requests/{id}</code><br>Kun Godik: afhentnings- og returdato eller teknikerbesøg</div>
+    <div><code>webhook trailer.blocked</code><br>Sendes når en kontrol fejler, så afdelingen ved det med det samme</div>
+  </div>
+  <div class="h3">Hvad kunden aldrig ser</div>
+  <div class="api"><div>Godik, Ejby, nummerplader, placeringsordrer, andre kunders bookinger,
+    driftsstatus og servicehistorik. Kundesiden kalder kun endpoints under <code>/v1/public</code>.</div></div>`;
+}
+
+function locView(ptop,sc,kunde){
   const l=byLoc(S.sel);
   ptop.innerHTML=`<button class="back" data-back="root">← Tilbage</button>
     <button class="closex" data-back="root" title="Luk">×</button>
-    <h2>Dagrofa ${esc(l.n)} <span style="color:var(--muted);font-weight:400">${l.c}</span></h2>
+    <h2>${kunde?PARTNER+' '+esc(l.n):'Dagrofa '+esc(l.n)+' '}${kunde?'':`<span style="color:var(--muted);font-weight:400">${l.c}</span>`}</h2>
     <p>${esc(l.a)}, ${esc(l.z)}</p>`;
-  sc.innerHTML=(l.svc.length?`<div class="h3">Service</div>`+l.svc.map(svcRow).join(''):'')
+  if(kunde){
+    sc.innerHTML=`<div class="h3">Ledige trailere (${l.free.length})</div>`
+      +(l.free.length?l.free.map(kundeRow).join('')
+        :'<div class="sub">Ingen ledige trailere i denne afdeling lige nu.</div>');
+    return;
+  }
+  sc.innerHTML=(l.blk.length?`<div class="h3">Spærret</div>`+l.blk.map(trailerRow).join(''):'')
+    +(l.svc.length?`<div class="h3">Service</div>`+l.svc.map(svcRow).join(''):'')
     +(l.unnum.length?`<div class="h3">Booking uden trailernummer</div>`+l.unnum.map(b=>
       `<div class="row" style="cursor:default"><div class="rm">
-        <div class="reg" style="font-size:14px">${esc(b.k)}</div>
+        <div class="reg" style="font-size:14.5px">${esc(b.k)}</div>
         <div class="sub">Ordre ${b.o} · nummer ikke angivet i listen</div></div>
         <div class="rd">${dk(b.f)} – ${dk(b.t)}</div></div>`).join(''):'')
     +`<div class="h3">Trailere på adressen (${l.tr.length})</div>`
     +(l.tr.length?l.tr.map(trailerRow).join(''):'<div class="sub">Ingen trailere står her lige nu.</div>')
-    +(S.app==='dagrofa'?`<button class="btn" data-form="udlej">Udlej trailer herfra</button>`:'');
+    +(S.app==='dagrofa'?`<button class="btn" data-form="udlej">Opret udlejning herfra</button>`:'');
 }
 
-function trailerView(ptop,sc,isG){
+function trailerView(ptop,sc,godik){
   const t=byReg(S.trailer),l=byLoc(t.l),s=t.svc;
   ptop.innerHTML=`<button class="back" data-back="loc">← ${esc(l.n)}</button>
     <button class="closex" data-back="root" title="Luk">×</button>
-    <h2>${t.r}</h2><p>${t.t==='mini'?'Mini-køletrailer':'Køle- og frysetrailer'} · Dagrofa ${esc(l.n)}</p>`;
+    <h2>${t.r}</h2><p>${SPECS[t.t].navn} · Dagrofa ${esc(l.n)}</p>`;
   const chain=`<div class="chain">
     <div class="step ${t.atGodik?'':'off'}"><i style="background:var(--base)"></i><div>
       <b>Godik · Ejby</b><span>${t.atGodik?'På værkstedet'+(s.retur?' · retur '+dk(s.retur):''):'Ejer af traileren'}</span></div></div>
@@ -604,49 +778,49 @@ function trailerView(ptop,sc,isG){
       <span>${esc(l.a)}, ${esc(l.z)}<br>${t.pl.t?'Udstationeret '+dk(t.pl.f)+' – '+dk(t.pl.t):'Udstationeret siden '+dk(t.pl.f)+' · løber fortsat'} · ordre ${t.o}</span></div></div>
     <div class="step ${t.active?'':'off'}"><i style="background:var(--sub)"></i><div>
       <b>${t.active?esc(t.active.k):'Ingen slutkunde lige nu'}</b>
-      <span>${t.active?'Ordre '+t.active.o+' · '+dk(t.active.f)+' – '+dk(t.active.t)+(t.active.att?' · att. '+esc(t.active.att):''):
-        t.next?'Næste booking '+dk(t.next.f):'Står klar i afdelingen'}</span></div></div></div>`;
+      <span>${t.active?'Ordre '+t.active.o+' · '+dk(t.active.f)+' – '+dk(t.active.t):
+        t.next?'Næste booking '+dk(t.next.f):'Klar til booking'}</span></div></div></div>`;
 
   const left=`<div class="bigph" style="background-image:url(${IMG[t.t]})"></div>
     ${pill(t.state)}
+    ${t.blk?`<div class="alert" style="margin-top:10px"><b>Spærret for booking</b>
+      <p>${t.blk.items.map(f=>esc(f.i)+': '+esc(f.note)).join('<br>')}</p>
+      ${S.app==='dagrofa'?`<div style="display:flex;gap:9px;margin-top:10px">
+        <button class="btn ghost" style="margin:0" data-free="${t.r}">Frigiv</button>
+        <button class="btn" style="margin:0" data-order="${t.r}">Bestil service</button></div>`:''}</div>`:''}
     <div class="kv"><span>Står nu</span><span>${t.atGodik?'Godik, Ejby':'Dagrofa '+esc(l.n)}</span></div>
     <div class="kv"><span>Adresse</span><span>${t.atGodik?'Industribuen 2<br>5592 Ejby':esc(l.a)+'<br>'+esc(l.z)}</span></div>
     <div class="kv"><span>Udstationeret</span><span>${t.pl.t?dk(t.pl.f)+' – '+dk(t.pl.t):'siden '+dk(t.pl.f)+', løbende'}</span></div>
-    <div class="kv"><span>Position</span><span>${(t.atGodik?HQ:l).lat.toFixed(4)}, ${(t.atGodik?HQ:l).lng.toFixed(4)}</span></div>
-    ${isG?`<div class="kv"><span>Hovedlejer</span><span>Dagrofa Foodservice A/S</span></div>
+    ${godik?`<div class="kv"><span>Hovedlejer</span><span>Dagrofa Foodservice A/S</span></div>
       <div class="kv"><span>Placeringsordre</span><span>${t.o}</span></div>`:''}
-    ${S.app==='dagrofa'?`
-      ${t.active?`<button class="btn" data-form="retur-${t.active.o}">Registrer retur og visuel kontrol</button>`
-        :(!s&&!t.atGodik?`<button class="btn" data-form="udlej-${t.r}">Udlej ${t.r} til slutkunde</button>`:'')}
-      ${!s?`<button class="btn ghost" data-form="new-${t.r}">Anmod om service</button>`:''}`:''}`;
+    ${S.app==='dagrofa'&&t.bookable&&!t.active?`<button class="btn" data-form="udlej-${t.r}">Opret udlejning</button>`:''}
+    ${S.app==='dagrofa'&&!s?`<button class="btn ghost" data-form="new-${t.r}">Anmod om service</button>`:''}`;
 
   const right=`<div class="h3">Hvor er traileren</div>${chain}
     ${s?`<div class="h3">Åben service</div>`+svcRow(s):''}
     <div class="h3">Servicehistorik</div>
-    ${t.hist.length?t.hist.map(svcRow).join(''):'<div class="sub">Ingen afsluttet service registreret på denne trailer.</div>'}
-    <div class="h3">Udlejninger til slutkunde</div>
+    ${t.hist.length?t.hist.map(svcRow).join(''):'<div class="sub">Ingen afsluttet service.</div>'}
+    <div class="h3">Udlejninger</div>
     ${t.subs.length?t.subs.map(b=>`<div class="row" data-book="${b.o}"><div class="rm">
         <div class="reg" style="font-size:14.5px">${esc(b.k)}</div>
-        <div class="sub">Ordre ${b.o} · konto ${b.kt||'–'}${b.att?' · att. '+esc(b.att):''}</div></div>
+        <div class="sub">Ordre ${b.o}${b.att?' · att. '+esc(b.att):''}</div></div>
         <div class="rd">${dk(b.f)} – ${dk(b.t)}<br>${b.state.toLowerCase()}</div></div>`).join('')
       :'<div class="sub">Ingen registrerede udlejninger.</div>'}
-    <div class="h3">Modtagekontrol</div>
-    ${INSPECTIONS.filter(i=>i.r===t.r).length?INSPECTIONS.filter(i=>i.r===t.r).map(i=>
-      `<div class="row" style="cursor:default"><div class="rm">
+    <div class="h3">Visuel kontrol</div>
+    ${t.insp.length?t.insp.map(i=>`<div class="row" style="cursor:default"><div class="rm">
         <div class="reg" style="font-size:14.5px">${i.faults.length?'Fejl på '+i.faults.length+' punkt'+(i.faults.length>1?'er':''):'Alt i orden'}</div>
-        <div class="sub">${i.faults.length?i.faults.map(f=>esc(f.i)).join(' · '):'Alle punkter tjekket'}</div></div>
+        <div class="sub">${i.phase==='afhentning'?'Ved afhentning':'Ved aflevering'}${i.faults.length?' · '+i.faults.map(f=>esc(f.i)).join(' · '):''}</div></div>
         <div class="rd">${dk(i.at)}<br>${esc(i.af)}</div></div>`).join('')
       :'<div class="sub">Ingen kontrol registreret endnu.</div>'}`;
-
   sc.innerHTML=`<div class="dgrid"><div>${left}</div><div>${right}</div></div>`;
 }
 
-function svcView(ptop,sc,isG){
+/* ---------- service ---------- */
+function svcView(ptop,sc,godik){
   const s=SERVICE.find(x=>x.id===S.svc),t=byReg(s.r),l=byLoc(s.l);
   ptop.innerHTML=`<button class="back" data-back="root">← Tilbage</button>
     <button class="closex" data-back="root" title="Luk">×</button>
-    <h2>${s.r}</h2>
-    <p>${esc(s.fejl)} · Dagrofa ${esc(l.n)}</p>`;
+    <h2>${s.r}</h2><p>${esc(s.fejl)} · Dagrofa ${esc(l.n)}</p>`;
   const plan=s.mode==='onsite'
     ?`<div class="chain">
       <div class="step"><i style="background:var(--alert)"></i><div><b>Anmodt ${dk(s.at)}</b><span>${esc(s.af)}</span></div></div>
@@ -664,24 +838,19 @@ function svcView(ptop,sc,isG){
       <div class="step ${s.retur?'':'off'}"><i style="background:var(--base)"></i><div>
         <b>${s.retur?'Leveres tilbage '+dk(s.retur):'Retur ikke planlagt'}</b>
         <span>${s.retur?'Tilbage i '+esc(l.n):'Sættes sammen med afhentningsdatoen'}</span></div></div></div>`;
-
   const left=`<div class="bigph" style="background-image:url(${IMG[t.t]})"></div>
     <div class="kv"><span>Status</span><span>${s.st}</span></div>
-    <div class="kv"><span>Trailer</span><span><a class="lnk" data-tr="${s.r}">${s.r}</a> · ${t.t==='mini'?'Mini':'Køle/frys'}</span></div>
+    <div class="kv"><span>Trailer</span><span><a class="lnk" data-tr="${s.r}">${s.r}</a> · ${SPECS[t.t].navn}</span></div>
     <div class="kv"><span>Afdeling</span><span>Dagrofa ${esc(l.n)} · ${l.c}</span></div>
     <div class="kv"><span>Adresse</span><span>${esc(l.a)}<br>${esc(l.z)}</span></div>
     <div class="kv"><span>Løsning</span><span>${s.mode==='onsite'?'Tekniker kører ud':'Traileren hentes til Ejby'}</span></div>
-    <div class="h3">Beskrivelse</div>
-    <div class="sub" style="white-space:normal">${esc(s.txt)}</div>
+    <div class="h3">Beskrivelse</div><div class="sub" style="white-space:normal">${esc(s.txt)}</div>
     ${s.svar?`<div class="h3">Besked til afdelingen</div><div class="sub" style="white-space:normal">${esc(s.svar)}</div>`:''}`;
-
   const right=`<div class="h3">Forløb</div>${plan}
-    ${isG?godikActions(s):`<div class="sub" style="white-space:normal">Godik Power melder datoerne tilbage her, så snart servicen er planlagt.</div>`}`;
-
+    ${godik?godikActions(s):`<div class="sub" style="white-space:normal">Godik Power melder datoerne tilbage her, så snart servicen er planlagt.</div>`}`;
   sc.innerHTML=`<div class="dgrid"><div>${left}</div><div>${right}</div></div>`;
-  if(isG) wireActions(s);
+  if(godik) wireActions(s);
 }
-
 function godikActions(s){
   const plus=n=>iso(new Date(TODAY.getTime()+n*864e5));
   const mode=`<div class="h3">Sådan løser vi det</div>
@@ -722,37 +891,59 @@ function wireActions(s){
   if(g('a-pick')) g('a-pick').onclick=()=>{s.st='På værksted';render();toast(s.r+' er nu i Ejby')};
   if(g('a-done')) g('a-done').onclick=()=>{
     s.st='Afsluttet'; s.udfort=iso(TODAY);
-    render(); toast(s.mode==='onsite'?'Servicen er registreret som udført':s.r+' er tilbage hos Dagrofa '+byLoc(s.l).n);
+    const t=byReg(s.r);
+    if(t.blk){t.blk=null; toast(s.r+' er repareret og kan bookes igen')}
+    else toast(s.mode==='onsite'?'Servicen er registreret som udført':s.r+' er tilbage hos Dagrofa');
+    render();
   };
 }
 
 /* ---------- booking ---------- */
-function bookView(ptop,sc,isG){
+function bookView(ptop,sc,godik){
   const b=SUBS.find(x=>x.o===S.book); if(!b){S.book=null;return render()}
   const l=byLoc(b.l), t=b.r?byReg(b.r):null;
-  const insp=INSPECTIONS.find(i=>i.o===b.o);
+  const kunde=isKunde();
+  const pickup=INSPECTIONS.find(i=>i.o===b.o&&i.phase==='afhentning');
+  const ret=INSPECTIONS.find(i=>i.o===b.o&&i.phase==='aflevering');
+
   ptop.innerHTML=`<button class="back" data-back="root">← Tilbage</button>
     <button class="closex" data-back="root" title="Luk">×</button>
-    <h2>${esc(b.k)}</h2><p>${b.state} · Dagrofa ${esc(l.n)} · ordre ${b.o}</p>`;
+    <h2>${kunde?SPECS[t.t].navn:esc(b.k)}</h2>
+    <p>${b.state} · ${kunde?PARTNER+' '+esc(l.n):'Dagrofa '+esc(l.n)+' · ordre '+b.o}</p>`;
 
   const left=`${t?`<div class="bigph" style="background-image:url(${IMG[t.t]})"></div>`:''}
-    <div class="kv"><span>Trailer</span><span>${b.r?`<a class="lnk" data-tr="${b.r}">${b.r}</a> · ${t.t==='mini'?'Mini':'Køle/frys'}`:'ikke angivet'}</span></div>
+    ${kunde?'':`<div class="kv"><span>Trailer</span><span>${b.r?`<a class="lnk" data-tr="${b.r}">${b.r}</a> · ${SPECS[t.t].navn}`:'ikke angivet'}</span></div>`}
     <div class="kv"><span>Periode</span><span>${dk(b.f)} – ${dk(b.t)}</span></div>
-    ${b.att?`<div class="kv"><span>Kontaktperson</span><span>${esc(b.att)}</span></div>`:''}
-    ${b.tlf?`<div class="kv"><span>Telefon</span><span>${esc(b.tlf)}</span></div>`:''}
-    <div class="kv"><span>Adresse</span><span>${b.adr?esc(b.adr)+'<br>'+esc(b.post)+' '+esc(b.by):'ikke oplyst i bookinglisten'}</span></div>
-    ${b.lat?`<div class="kv"><span>Position</span><span>${b.lat.toFixed(4)}, ${b.lng.toFixed(4)}</span></div>`:''}
-    ${b.kt?`<div class="kv"><span>Konto</span><span>${esc(b.kt)}</span></div>`:''}
-    <div class="kv"><span>Afdeling</span><span>Dagrofa ${esc(l.n)} · ${l.c}</span></div>`;
+    <div class="kv"><span>${kunde?'Hentes hos':'Afdeling'}</span><span>${kunde?PARTNER+' '+esc(l.n):'Dagrofa '+esc(l.n)+' · '+l.c}</span></div>
+    <div class="kv"><span>Adresse</span><span>${esc(l.a)}<br>${esc(l.z)}</span></div>
+    ${kunde?'':`${b.att?`<div class="kv"><span>Kontaktperson</span><span>${esc(b.att)}</span></div>`:''}
+      ${b.tlf?`<div class="kv"><span>Telefon</span><span>${esc(b.tlf)}</span></div>`:''}
+      <div class="kv"><span>Brugsadresse</span><span>${b.adr?esc(b.adr)+'<br>'+esc(b.post)+' '+esc(b.by):'ikke oplyst'}</span></div>
+      ${b.kt?`<div class="kv"><span>Konto</span><span>${esc(b.kt)}</span></div>`:''}`}`;
 
-  const right=`<div class="h3">Modtagekontrol</div>
-    ${insp?`<div class="sub" style="white-space:normal">${insp.faults.length
-        ?insp.faults.map(f=>'<b>'+esc(f.i)+'</b><br>'+esc(f.note)).join('<br><br>')
-        :'Alt i orden, alle punkter tjekket.'}<br><br>${dk(insp.at)} · ${esc(insp.af)}</div>`
-      :'<div class="sub">Ikke registreret endnu.</div>'}
+  const inspBlock=i=>i
+    ? `<div class="concl ${i.faults.length?'bad':'ok'}">${i.faults.length
+        ?'Fejl fundet på '+i.faults.length+' punkt'+(i.faults.length>1?'er':''):'Alt i orden'}</div>
+       <div class="sub" style="white-space:normal;margin-top:6px">
+       ${i.faults.length?i.faults.map(f=>'<b>'+esc(f.i)+'</b><br>'+esc(f.note)).join('<br><br>'):'Alle punkter tjekket.'}
+       <br><br>${dk(i.at)} · ${esc(i.af)}</div>`
+    : '<div class="sub">Ikke gennemført endnu.</div>';
+
+  const right=`<div class="h3">Kontrol ved afhentning</div>
+    ${inspBlock(pickup)}
+    ${!pickup&&b.state!=='Afsluttet'&&(kunde||S.app==='dagrofa')
+      ?`<button class="btn" data-form="check-afhentning-${b.o}">Start kontrol ved afhentning</button>`:''}
+    ${pickup&&pickup.faults.length?`<div class="alert" style="margin-top:12px"><b>Traileren må ikke køre</b>
+      <p>Kontakt ${kunde?PARTNER+' '+esc(l.n):'afdelingen'} på 70 20 18 16. Vi finder en anden trailer til dig.</p></div>`:''}
+
+    <div class="h3">Kontrol ved aflevering</div>
+    ${inspBlock(ret)}
+    ${pickup&&!pickup.faults.length&&!ret&&(kunde||S.app==='dagrofa')
+      ?`<button class="btn" data-form="check-aflevering-${b.o}">Start kontrol ved aflevering</button>`:''}
+    ${!pickup?'<div class="sub">Kan først laves, når afhentningen er godkendt.</div>':''}
+
     ${S.app==='dagrofa'&&b.state!=='Afsluttet'?`
       <div class="h3">Handlinger</div>
-      ${b.r?`<button class="btn" data-form="retur-${b.o}">Registrer retur og visuel kontrol</button>`:''}
       <label class="f"><span>Ret slutdato</span><input class="i" type="date" id="b-til" value="${b.t}"></label>
       <button class="btn ghost" id="b-save">Gem ændring</button>
       <button class="btn ghost" id="b-cancel">Annuller bookingen</button>`:''}`;
@@ -763,7 +954,7 @@ function bookView(ptop,sc,isG){
     const g=id=>document.getElementById(id);
     if(g('b-save')) g('b-save').onclick=()=>{
       const v=g('b-til').value; if(!v||D(v)<D(b.f))return toast('Slutdato skal ligge efter startdato');
-      b.t=v; render(); toast('Booking opdateret · Godik får besked');
+      b.t=v; render(); toast('Booking opdateret');
     };
     if(g('b-cancel')) g('b-cancel').onclick=()=>{
       SUBS=SUBS.filter(x=>x.o!==b.o); S.book=null; render(); toast('Bookingen er annulleret');
@@ -771,65 +962,103 @@ function bookView(ptop,sc,isG){
   }
 }
 
-/* ---------- ny udlejning ---------- */
-function overlaps(reg,f,t,skip){
-  return SUBS.some(b=>b.r===reg&&b.o!==skip&&b.st!=='Afsluttet'&&!(D(b.t)<D(f)||D(b.f)>D(t)));
+/* ---------- kundens egen booking ---------- */
+function bookingForm(ptop,sc){
+  const t=byReg(S.form.slice(5)), l=byLoc(t.l), sp=SPECS[t.t];
+  const plus=n=>iso(new Date(TODAY.getTime()+n*864e5));
+  ptop.innerHTML=`<button class="back" data-back="root">← Fortryd</button>
+    <button class="closex" data-back="root" title="Luk">×</button>
+    <h2>Book ${sp.navn}</h2><p>${PARTNER} ${esc(l.n)} · ${esc(l.a)}, ${esc(l.z)}</p>`;
+  sc.innerHTML=`<div class="pane">
+    <label class="f"><span>Navn</span><input class="i" id="k-att" placeholder="Dit fulde navn"></label>
+    <label class="f"><span>Firma, hvis du booker for et firma</span><input class="i" id="k-k" placeholder="Valgfrit"></label>
+    <label class="f"><span>Telefon</span><input class="i" id="k-tlf" inputmode="tel" placeholder="12 34 56 78"></label>
+    <label class="f"><span>Adresse hvor traileren bruges</span><input class="i" id="k-adr" placeholder="Vej og nummer"></label>
+    <div style="display:flex;gap:9px">
+      <label class="f" style="flex:0 0 40%"><span>Postnr.</span><input class="i" id="k-post" inputmode="numeric" placeholder="6000"></label>
+      <label class="f" style="flex:1"><span>By</span><input class="i" id="k-by" readonly placeholder="udfyldes automatisk"></label>
+    </div>
+    <div style="display:flex;gap:9px">
+      <label class="f" style="flex:1"><span>Fra</span><input class="i" type="date" id="k-f" value="${plus(0)}"></label>
+      <label class="f" style="flex:1"><span>Til</span><input class="i" type="date" id="k-t" value="${plus(2)}"></label>
+    </div>
+    <div class="sub" style="margin-top:10px">Når du henter traileren, gennemgår du en kort visuel
+      kontrol her på siden. Den tager to minutter.</div>
+    <button class="btn" id="k-save">Bekræft booking</button></div>`;
+  const g=id=>document.getElementById(id);
+  g('k-post').oninput=e=>{const p=POSTNR[e.target.value.trim()];g('k-by').value=p?p[2]:''};
+  g('k-save').onclick=()=>{
+    const att=g('k-att').value.trim(),tlf=g('k-tlf').value.trim(),adr=g('k-adr').value.trim(),
+          post=g('k-post').value.trim(),f=g('k-f').value,ti=g('k-t').value;
+    if(!att||!tlf||!adr||!post) return toast('Udfyld navn, telefon og adresse');
+    if(!POSTNR[post]) return toast('Ukendt postnummer');
+    if(!f||!ti||D(ti)<D(f)) return toast('Tjek datoerne');
+    if(!freeIn(t.r,f,ti)) return toast('Traileren er optaget i de dage. Vælg andre datoer.');
+    const p=POSTNR[post], o='B-'+(5100+SUBS.filter(b=>String(b.o).startsWith('B-')).length+1);
+    SUBS.push({o,r:t.r,l:t.l,f,t:ti,k:g('k-k').value.trim()||att,att,tlf,adr,post,by:p[2],
+      lat:p[0],lng:p[1],kt:'',st:'Aktiv'});
+    S.mine.push(o); S.form=null; S.book=o; S.tab='min'; render();
+    toast('Booking bekræftet');
+  };
 }
+
+/* ---------- udlejning oprettet af afdelingen ---------- */
 function udlejForm(ptop,sc){
   const pre=S.form.startsWith('udlej-')?S.form.slice(6):'';
   const plus=n=>iso(new Date(TODAY.getTime()+n*864e5));
-  const avail=TRAILERS.filter(t=>inScope(t.l)&&!t.atGodik);
+  const avail=TRAILERS.filter(t=>inScope(t.l)&&t.bookable);
   ptop.innerHTML=`<button class="back" data-back="root">← Fortryd</button>
     <button class="closex" data-back="root" title="Luk">×</button>
-    <h2>Udlej til slutkunde</h2><p>Registreres hos Godik med det samme</p>`;
+    <h2>Opret udlejning</h2><p>Registreres hos Godik med det samme</p>`;
   if(!avail.length){sc.innerHTML='<div class="sub">Ingen trailere til rådighed i den valgte afdeling.</div>';return}
   sc.innerHTML=`<div class="pane">
     <label class="f"><span>Trailer</span><select class="i" id="u-tr">${avail.map(t=>
-      `<option value="${t.r}" ${t.r===pre?'selected':''}>${t.r} · ${t.t==='mini'?'Mini':'Køle/frys'} · ${byLoc(t.l).n}</option>`).join('')}</select></label>
-    <label class="f"><span>Firma eller kundenavn</span><input class="i" id="u-k" placeholder="F.eks. Buffet Køkkenet I/S"></label>
-    <label class="f"><span>Kontaktperson</span><input class="i" id="u-att" placeholder="Den, der henter traileren"></label>
-    <label class="f"><span>Telefon</span><input class="i" id="u-tlf" inputmode="tel" placeholder="12 34 56 78"></label>
-    <label class="f"><span>Adresse hvor traileren bruges</span><input class="i" id="u-adr" placeholder="Vej og nummer"></label>
+      `<option value="${t.r}" ${t.r===pre?'selected':''}>${t.r} · ${SPECS[t.t].navn} · ${byLoc(t.l).n}</option>`).join('')}</select></label>
+    <label class="f"><span>Firma eller kundenavn</span><input class="i" id="u-k"></label>
+    <label class="f"><span>Kontaktperson</span><input class="i" id="u-att"></label>
+    <label class="f"><span>Telefon</span><input class="i" id="u-tlf" inputmode="tel"></label>
+    <label class="f"><span>Adresse hvor traileren bruges</span><input class="i" id="u-adr"></label>
     <div style="display:flex;gap:9px">
-      <label class="f" style="flex:0 0 40%"><span>Postnr.</span><input class="i" id="u-post" inputmode="numeric" placeholder="6000"></label>
-      <label class="f" style="flex:1"><span>By</span><input class="i" id="u-by" placeholder="udfyldes automatisk" readonly></label>
+      <label class="f" style="flex:0 0 40%"><span>Postnr.</span><input class="i" id="u-post" inputmode="numeric"></label>
+      <label class="f" style="flex:1"><span>By</span><input class="i" id="u-by" readonly placeholder="udfyldes automatisk"></label>
     </div>
     <div style="display:flex;gap:9px">
       <label class="f" style="flex:1"><span>Fra</span><input class="i" type="date" id="u-f" value="${plus(0)}"></label>
       <label class="f" style="flex:1"><span>Til</span><input class="i" type="date" id="u-t" value="${plus(3)}"></label>
     </div>
-    <label class="f"><span>Kundekonto hos Dagrofa</span><input class="i" id="u-kt" placeholder="Valgfri"></label>
+    <label class="f"><span>Kundekonto</span><input class="i" id="u-kt" placeholder="Valgfri"></label>
     <button class="btn" id="u-save">Opret udlejning</button></div>`;
   const g=id=>document.getElementById(id);
   g('u-post').oninput=e=>{const p=POSTNR[e.target.value.trim()];g('u-by').value=p?p[2]:''};
   g('u-save').onclick=()=>{
-    const k=g('u-k').value.trim(), tlf=g('u-tlf').value.trim(), adr=g('u-adr').value.trim(),
-          post=g('u-post').value.trim(), f=g('u-f').value, t=g('u-t').value, r=g('u-tr').value;
+    const k=g('u-k').value.trim(),tlf=g('u-tlf').value.trim(),adr=g('u-adr').value.trim(),
+          post=g('u-post').value.trim(),f=g('u-f').value,t=g('u-t').value,r=g('u-tr').value;
     if(!k||!tlf||!adr||!post) return toast('Udfyld kunde, telefon og adresse');
     if(!POSTNR[post]) return toast('Ukendt postnummer');
     if(!f||!t||D(t)<D(f)) return toast('Tjek datoerne');
-    if(overlaps(r,f,t)) return toast(r+' er allerede booket i den periode');
+    if(!freeIn(r,f,t)) return toast(r+' er allerede udlejet i den periode');
     const tr=byReg(r), p=POSTNR[post];
     const o='D-'+(4100+SUBS.filter(b=>String(b.o).startsWith('D-')).length+1);
     SUBS.push({o,r,l:tr.l,f,t,k,att:g('u-att').value.trim(),tlf,adr,post,by:p[2],
       lat:p[0],lng:p[1],kt:g('u-kt').value.trim(),st:'Aktiv'});
     S.form=null;S.book=o;render();
-    toast('Udlejningen er oprettet og sendt til Godik');
+    toast('Udlejningen er oprettet');
   };
 }
 
-/* ---------- retur og visuel kontrol ---------- */
-function returForm(ptop,sc){
-  const b=SUBS.find(x=>x.o===S.form.slice(6)); if(!b){S.form=null;return render()}
+/* ---------- visuel kontrol, både ved afhentning og aflevering ---------- */
+function checkForm(ptop,sc){
+  const parts=S.form.split('-'), phase=parts[1], b=SUBS.find(x=>x.o===parts.slice(2).join('-'));
+  if(!b){S.form=null;return render()}
+  const t=byReg(b.r), l=byLoc(b.l), kunde=isKunde();
   S.cnotes=S.cnotes||{};
   ptop.innerHTML=`<button class="back" data-back="root">← Fortryd</button>
     <button class="closex" data-back="root" title="Luk">×</button>
-    <h2>Visuel kontrol</h2><p>${b.r} · ${esc(b.k)}</p>`;
+    <h2>Visuel kontrol</h2>
+    <p>${phase==='afhentning'?'Ved afhentning':'Ved aflevering'} · ${kunde?SPECS[t.t].navn:b.r+' · '+esc(b.k)}</p>`;
   const done=CHECKALL.filter(i=>S.chk[i]).length, faults=CHECKALL.filter(i=>S.chk[i]==='fejl');
   const alt=done===CHECKALL.length&&!faults.length;
-  sc.innerHTML=`<div class="pane"><div class="prog">Tjekkes med øjne og hænder. Der skal hverken bil eller strøm til.</div>
-    <div class="kv"><span>Trailer</span><span>${b.r}</span></div>
-    <div class="kv"><span>Dato</span><span>${dk(iso(TODAY))}</span></div>`
+  sc.innerHTML=`<div class="pane"><div class="prog">Tjekkes med øjne og hænder. Der skal hverken bil eller strøm til.</div>`
     +CHECK.map(c=>`<div class="ghead"><span>${c.g}</span>${c.hint?`<em>${c.hint}</em>`:''}</div>`
       +c.items.map(i=>{const a=S.chk[i];
         return `<div class="citem ${a==='fejl'?'flag':''}"><div class="cl">${i}</div><div class="tri">
@@ -840,9 +1069,9 @@ function returForm(ptop,sc){
       <div class="concl ${done<CHECKALL.length?'wait':alt?'ok':'bad'}">${
         done<CHECKALL.length?`${done} af ${CHECKALL.length} punkter tjekket`
         :alt?'Alt i orden':`Fejl fundet på ${faults.length} punkt${faults.length>1?'er':''} – ring 70 20 18 16`}</div>
-      <label class="f"><span>Kontrolleret af</span><input class="i" id="c-af" value="${esc(S.chkaf||'')}" placeholder="Navn og afdeling"></label>
+      <label class="f"><span>Kontrolleret af</span><input class="i" id="c-af" value="${esc(S.chkaf||'')}" placeholder="${kunde?'Dit navn':'Navn og afdeling'}"></label>
       <button class="btn" id="c-done" ${done<CHECKALL.length?'disabled':''}>${
-        done<CHECKALL.length?'Tjek alle punkter':alt?'Godkend og luk booking':'Send afvigelse til Godik'}</button></div>`;
+        done<CHECKALL.length?'Tjek alle punkter':alt?'Godkend':'Meld fejl'}</button></div>`;
   const grab=()=>{
     const af=document.getElementById('c-af'); if(af) S.chkaf=af.value;
     sc.querySelectorAll('[data-note]').forEach(n=>S.cnotes[n.dataset.note]=n.value);
@@ -860,29 +1089,34 @@ function returForm(ptop,sc){
     if(!S.chkaf) return toast('Skriv hvem der har kontrolleret vognen');
     if(faults.some(f=>!(S.cnotes[f]||'').trim())) return toast('Skriv en bemærkning ved hver fejl');
     const list=faults.map(f=>({i:f,note:(S.cnotes[f]||'').trim()}));
-    INSPECTIONS.unshift({o:b.o,r:b.r,l:b.l,k:b.k,at:iso(TODAY),faults:list,af:S.chkaf});
-    b.st='Afsluttet'; b.t=iso(TODAY);
-    const reg=b.r, loc=b.l;
-    S.form=null;S.chk={};S.cnotes={};S.book=b.o;
+    INSPECTIONS.unshift({o:b.o,r:b.r,l:b.l,phase,at:iso(TODAY),faults:list,af:S.chkaf,
+      by:kunde?'kunde':'afdeling'});
     if(list.length){
-      SERVICE.unshift({id:'S-'+(2043+SERVICE.length),r:reg,l:loc,fejl:'Fundet ved modtagekontrol',
-        txt:list.map(f=>f.i+': '+f.note).join('. '),af:S.chkaf,at:iso(TODAY),st:'Modtaget',
-        mode:'afhent',afhent:'',retur:'',besog:'',udfort:'',svar:''});
-      render(); toast('Afvigelse oprettet og sendt til Godik Power');
-    } else { render(); toast(reg+' er godkendt og klar igen'); }
+      /* Traileren spærres for nye bookinger, indtil afdelingen frigiver den. */
+      t.blk={at:iso(TODAY),af:S.chkaf,phase,items:list};
+      if(phase==='aflevering'){b.st='Afsluttet';b.t=iso(TODAY)}
+    }else{
+      if(phase==='afhentning') b.pickupOk=true;
+      else {b.st='Afsluttet';b.t=iso(TODAY)}
+    }
+    S.form=null;S.chk={};S.cnotes={};S.chkaf='';S.book=b.o;
+    render();
+    toast(list.length
+      ? 'Fejlen er meldt. Traileren er spærret, indtil den er udbedret.'
+      : phase==='afhentning'?'Godkendt. God tur.':'Tak, traileren er afleveret.');
   };
 }
 
-function formView(ptop,sc){
-  if(S.form.startsWith('udlej')) return udlejForm(ptop,sc);
-  if(S.form.startsWith('retur-')) return returForm(ptop,sc);
+/* ---------- serviceanmodning fra afdelingen ---------- */
+function serviceForm(ptop,sc){
   const pre=S.form.startsWith('new-')?S.form.slice(4):'';
   ptop.innerHTML=`<button class="back" data-back="root">← Fortryd</button>
     <button class="closex" data-back="root" title="Luk">×</button>
-    <h2>Anmod om service</h2><p>Sendes til Godik Power via API</p>`;
+    <h2>Anmod om service</h2><p>Sendes til Godik Power</p>`;
+  const list=TRAILERS.filter(t=>inScope(t.l)&&!t.svc);
   sc.innerHTML=`<div class="pane">
-    <label class="f"><span>Trailer</span><select class="i" id="f-tr">${TRAILERS.filter(t=>!t.svc).map(t=>
-      `<option value="${t.r}" ${t.r===pre?'selected':''}>${t.r} · ${t.t==='mini'?'Mini':'Køle/frys'} · ${byLoc(t.l).n}</option>`).join('')}</select></label>
+    <label class="f"><span>Trailer</span><select class="i" id="f-tr">${list.map(t=>
+      `<option value="${t.r}" ${t.r===pre?'selected':''}>${t.r} · ${SPECS[t.t].navn} · ${byLoc(t.l).n}</option>`).join('')}</select></label>
     <label class="f"><span>Hvad er der galt</span><select class="i" id="f-fejl">
       ${['Køleanlæg','Pakninger','Lys og el','Døre og låse','Hjul og dæk','Støtteben og træk','Indvendig skade','Andet'].map(x=>`<option>${x}</option>`).join('')}</select></label>
     <label class="f"><span>Beskrivelse</span><textarea class="i" id="f-txt" placeholder="Hvad sker der, og hvornår opstod det"></textarea></label>
@@ -900,28 +1134,55 @@ function formView(ptop,sc){
   };
 }
 
+function formView(ptop,sc){
+  if(S.form.startsWith('book-'))  return bookingForm(ptop,sc);
+  if(S.form.startsWith('check-')) return checkForm(ptop,sc);
+  if(S.form.startsWith('udlej'))  return udlejForm(ptop,sc);
+  return serviceForm(ptop,sc);
+}
+
 function toast(m){const el=document.getElementById('toast');el.textContent=m;el.style.display='block';
-  clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2800)}
+  clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3200)}
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-app],[data-tab],[data-loc],[data-tr],[data-svc],[data-back],[data-form],[data-book]');
+  const b=e.target.closest('[data-app],[data-tab],[data-loc],[data-tr],[data-svc],[data-back],[data-form],[data-book],[data-free],[data-order]');
   if(!b)return;
-  if(b.dataset.app){S=Object.assign(S,{app:b.dataset.app,tab:'flaade',sel:null,trailer:null,svc:null,book:null,form:null,dept:null,chk:{}});setView(VB.slice())}
+  if(b.dataset.app){
+    S=Object.assign(S,{app:b.dataset.app,sel:null,trailer:null,svc:null,book:null,form:null,dept:null,chk:{},cnotes:{}});
+    S.tab=b.dataset.app==='kunde'?'ledige':'flaade';
+    setView(VB.slice());
+  }
   else if(b.dataset.tab){S.tab=b.dataset.tab;S.sel=null;S.trailer=null;S.svc=null;S.book=null;S.form=null;
-    if(b.dataset.tab!=='flaade')setView(VB.slice())}
+    if(b.dataset.tab!=='flaade'&&b.dataset.tab!=='ledige')setView(VB.slice());}
   else if(b.dataset.back){S.svc=null;S.form=null;S.book=null;
     if(b.dataset.back==='loc'&&S.trailer){S.trailer=null}
     else{S.trailer=null;S.sel=null;setView(VB.slice())}}
   else if(b.dataset.loc){S.sel=b.dataset.loc;S.trailer=null;focus(byLoc(b.dataset.loc))}
-  else if(b.dataset.tr){const t=byReg(b.dataset.tr);S.trailer=t.r;S.sel=t.l;focus(byLoc(t.l))}
+  else if(b.dataset.tr){const t=byReg(b.dataset.tr);S.trailer=t.r;S.sel=t.l;S.svc=null;S.book=null;focus(byLoc(t.l))}
   else if(b.dataset.svc){S.svc=b.dataset.svc}
   else if(b.dataset.book){S.book=b.dataset.book;S.trailer=null}
-  else if(b.dataset.form){S.form=b.dataset.form;if(b.dataset.form.startsWith('retur-')){S.chk={};S.cnotes={}}}
+  else if(b.dataset.free){
+    const t=byReg(b.dataset.free); t.blk=null;
+    toast(t.r+' er frigivet og kan bookes igen');
+  }
+  else if(b.dataset.order){
+    const t=byReg(b.dataset.order);
+    if(!t.svc){
+      SERVICE.unshift({id:'S-'+(2043+SERVICE.length),r:t.r,l:t.l,fejl:'Fundet ved visuel kontrol',
+        txt:t.blk.items.map(f=>f.i+': '+f.note).join('. '),af:'Dagrofa '+byLoc(t.l).n,
+        at:iso(TODAY),st:'Modtaget',mode:'afhent',afhent:'',retur:'',besog:'',udfort:'',svar:''});
+      toast('Serviceanmodning sendt til Godik Power');
+    }
+  }
+  else if(b.dataset.form){S.form=b.dataset.form;
+    if(b.dataset.form.startsWith('check-')){S.chk={};S.cnotes={};S.chkaf=''}}
   render();
 });
 document.getElementById('q').addEventListener('input',e=>{
-  S.q=e.target.value.trim();S.sel=null;S.trailer=null;S.svc=null;S.book=null;S.form=null;S.tab='flaade';render()});
+  S.q=e.target.value.trim();S.sel=null;S.trailer=null;S.svc=null;S.book=null;S.form=null;
+  S.tab=isKunde()?'ledige':'flaade';render()});
+
 render();
 
 </script>
