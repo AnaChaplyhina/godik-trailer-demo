@@ -359,6 +359,17 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const UNNUMBERED=SUBS.filter(b=>!b.r);
 const SVCCOL={'Modtaget':'var(--alert)','Planlagt':'var(--alert)','På værksted':'var(--base)','Afsluttet':'var(--base)'};
 
+/* Bookingens faser. Kunden skal altid kunne se, hvad der sker nu,
+   og afdelingen skal kunne se, at der er kommet noget nyt ind. */
+const FASE={anmodet:'Afventer bekræftelse',bekraeftet:'Bekræftet',
+  udleveret:'Udleveret til kunden',afleveret:'Afleveret',afvist:'Afvist'};
+function seedFaser(){
+  const t=iso(TODAY);
+  SUBS.forEach(b=>{ if(b.fase) return;
+    b.fase = b.t<t ? 'afleveret' : (b.f<=t ? 'udleveret' : 'bekraeftet');
+    if(b.fase!=='anmodet') b.pickupOk=true;
+  });
+}
 function bookState(b){
   if(b.st==='Afsluttet') return 'Afsluttet';
   if(D(b.t)<TODAY) return 'Afsluttet';
@@ -366,6 +377,7 @@ function bookState(b){
   return 'Kommende';
 }
 function recalc(){
+  seedFaser();
   SUBS.forEach(b=>b.state=bookState(b));
   TRAILERS.forEach(t=>{
     t.subs=SUBS.filter(b=>b.r===t.r).sort((a,b)=>D(a.f)-D(b.f));
@@ -373,18 +385,21 @@ function recalc(){
     t.next=t.subs.find(b=>b.state==='Kommende')||null;
     t.svc=SERVICE.find(s=>s.r===t.r&&s.st!=='Afsluttet')||null;
     t.atGodik=!!(t.svc&&t.svc.st==='På værksted');
-    t.here=t.atGodik?null:t.l;
+    t.ude=t.subs.find(b=>b.fase==='udleveret')||null;   /* fysisk hos kunden */
+    t.here=t.atGodik||t.ude?null:t.l;
     t.hist=SERVICE.filter(x=>x.r===t.r&&x.st==='Afsluttet');
     t.insp=INSPECTIONS.filter(i=>i.r===t.r);
     t.pl=ORDER(t.o);
     /* En trailer med en fejlet kontrol er spærret, indtil afdelingen
        enten selv udbedrer fejlen eller servicen er afsluttet. */
-    t.state=t.atGodik?'base':t.blk?'blocked':t.svc?'service':t.active?'sub':'placed';
+    t.state=t.atGodik?'base':t.blk?'blocked':t.svc?'service':t.ude?'sub':t.active?'sub':'placed';
     t.bookable=!!t.here&&!t.svc&&!t.blk;
+    t.reserved=t.subs.some(b=>b.fase==='anmodet'||b.fase==='bekraeftet');
   });
   LOCS.forEach(l=>{
     l.tr=TRAILERS.filter(t=>t.here===l.c);
-    l.free=l.tr.filter(t=>t.bookable&&!t.active);
+    l.free=l.tr.filter(t=>t.bookable&&!t.active&&!t.reserved);
+    l.nye=SUBS.filter(b=>b.l===l.c&&b.fase==='anmodet');
     l.unnum=UNNUMBERED.filter(b=>b.l===l.c);
     l.svc=SERVICE.filter(s=>s.l===l.c&&s.st!=='Afsluttet');
     l.blk=l.tr.filter(t=>t.blk);
@@ -400,7 +415,7 @@ const STATE={base:['var(--base)','På værksted hos Godik, Ejby'],placed:['var(-
 
 /* En trailer er ledig i en periode, hvis intet andet dækker de dage. */
 function freeIn(reg,f,t,skip){
-  return !SUBS.some(b=>b.r===reg&&b.o!==skip&&b.st!=='Afsluttet'&&!(D(b.t)<D(f)||D(b.f)>D(t)));
+  return !SUBS.some(b=>b.r===reg&&b.o!==skip&&b.st!=='Afsluttet'&&b.fase!=='afvist'&&!(D(b.t)<D(f)||D(b.f)>D(t)));
 }
 
 /* ---------- kort ---------- */
@@ -445,7 +460,7 @@ function drawMap(){
   gl.innerHTML=(!S.sel&&!S.q)?LOCS.map(l=>{const [x,y]=proj(l.lng,l.lat);
     const mx=(hx+x)/2,my=(hy+y)/2-Math.abs(x-hx)*.18;
     return `<path class="link" d="M${hx} ${hy} Q${mx} ${my} ${x} ${y}"/>`}).join(''):'';
-  const cust=SUBS.filter(b=>b.state==='I gang'&&b.lat&&inScope(b.l)).map(b=>{
+  const cust=SUBS.filter(b=>b.fase==='udleveret'&&b.lat&&inScope(b.l)).map(b=>{
     const [x,y]=proj(b.lng,b.lat), l=byLoc(b.l), [lx,ly]=proj(l.lng,l.lat);
     return `<g class="cust" data-book="${b.o}">
       <path class="clink" d="M${lx} ${ly} L${x} ${y}"/>
@@ -571,6 +586,7 @@ function render(){
   document.getElementById('tabs').innerHTML=tabs.map(([k,l])=>{
     const n=k==='svc'?scopeSvc().filter(s=>s.st!=='Afsluttet').length
       :k==='kontrol'?scopeTrailers().filter(t=>t.blk).length
+      :k==='udl'?scopeSubs().filter(b=>b.fase==='anmodet').length
       :k==='min'?myBookings().length:0;
     return `<button data-tab="${k}" class="${S.tab===k?'on':''}">${l}${n?' · '+n:''}</button>`}).join('');
 
@@ -645,8 +661,10 @@ function kundeBookings(ptop,sc){
     return `<div class="row" data-book="${b.o}"><div class="thumb" style="background-image:url(${IMG[t.t]})"></div>
       <div class="rm"><div class="reg">${SPECS[t.t].navn}</div>
       <div class="sub">${esc(byLoc(b.l).n)} · ${dk(b.f)} – ${dk(b.t)}</div>
-      <span class="pill"><i style="background:${b.state==='Afsluttet'?'var(--base)':'var(--placed)'}"></i>${b.state}</span></div>
-      <div class="rd">${b.pickupOk?'afhentet':'ikke afhentet'}</div></div>`}).join('')
+      <span class="pill"><i style="background:${b.fase==='afvist'?'var(--alert)':b.fase==='afleveret'?'var(--base)':b.fase==='anmodet'?'var(--muted)':'var(--placed)'}"></i>${FASE[b.fase]}</span></div>
+      <div class="rd">${b.fase==='anmodet'?'afventer svar'
+        :b.fase==='bekraeftet'?'hent '+dk(b.f)
+        :b.fase==='udleveret'?'retur '+dk(b.t):dk(b.t)}</div></div>`}).join('')
     :'<div class="sub">Du har ingen bookinger endnu. Vælg en trailer under Ledige trailere.</div>';
 }
 
@@ -683,7 +701,16 @@ function rentalsView(ptop,sc,godik){
     <div class="rm"><div class="reg" style="font-size:14.5px">${esc(b.k)}</div>
       <div class="sub">${b.r||'nummer ikke angivet'} · ${esc(byLoc(b.l).n)}${b.by?' · '+esc(b.by):''}</div></div>
     <div class="rd">${dk(b.f)} – ${dk(b.t)}</div></div>`;
-  sc.innerHTML=(godik?'':`<button class="btn" data-form="udlej">Ny udlejning</button>`)
+  const nye=list.filter(b=>b.fase==='anmodet');
+  sc.innerHTML=(nye.length?`<div class="h3">Nye anmodninger (${nye.length})</div>`
+      +nye.map(b=>`<div class="alert"><b>${esc(b.k)} · ${esc(byLoc(b.l).n)}</b>
+        <p>${b.r} · ${dk(b.f)} – ${dk(b.t)} · ${esc(b.tlf||'')}<br>${b.adr?esc(b.adr)+', '+esc(b.post)+' '+esc(b.by):''}</p>
+        <div style="display:flex;gap:9px;margin-top:10px">
+          <button class="btn" style="margin:0" data-ok="${b.o}">Bekræft</button>
+          <button class="btn ghost" style="margin:0" data-no="${b.o}">Afvis</button>
+          <button class="btn ghost" style="margin:0" data-book="${b.o}">Se detaljer</button></div></div>`).join('')
+    :'')
+    +(godik?'':`<button class="btn" data-form="udlej">Ny udlejning</button>`)
     +`<div class="h3">I gang nu (${now.length})</div>${now.map(line).join('')||'<div class="sub">Ingen.</div>'}
       <div class="h3">Kommende (${next.length})</div>${next.map(line).join('')||'<div class="sub">Ingen.</div>'}
       <div class="h3">Afsluttet (${past.length})</div>${past.map(line).join('')||'<div class="sub">Ingen.</div>'}`;
@@ -903,24 +930,55 @@ function wireActions(s){
 function bookView(ptop,sc,godik){
   const b=SUBS.find(x=>x.o===S.book); if(!b){S.book=null;return render()}
   const l=byLoc(b.l), t=b.r?byReg(b.r):null;
-  const kunde=isKunde();
+  const kunde=isKunde(), dag=S.app==='dagrofa';
   const pickup=INSPECTIONS.find(i=>i.o===b.o&&i.phase==='afhentning');
   const ret=INSPECTIONS.find(i=>i.o===b.o&&i.phase==='aflevering');
 
   ptop.innerHTML=`<button class="back" data-back="root">← Tilbage</button>
     <button class="closex" data-back="root" title="Luk">×</button>
     <h2>${kunde?SPECS[t.t].navn:esc(b.k)}</h2>
-    <p>${b.state} · ${kunde?PARTNER+' '+esc(l.n):'Dagrofa '+esc(l.n)+' · ordre '+b.o}</p>`;
+    <p>${FASE[b.fase]} · ${kunde?PARTNER+' '+esc(l.n):'Dagrofa '+esc(l.n)+' · ordre '+b.o}</p>`;
+
+  /* Hvad sker der lige nu, skrevet til den rolle der kigger */
+  let nu='', tone='wait';
+  if(b.fase==='anmodet') nu=kunde
+    ? 'Afdelingen bekræfter din booking. Kør ikke afsted endnu – du får besked her.'
+    : 'Ny anmodning. Bekræft eller afvis, så kunden ved, om traileren er klar.';
+  else if(b.fase==='bekraeftet'&&!pickup){tone='ok';nu=kunde
+    ? `Bekræftet. Hent traileren hos ${PARTNER} ${l.n}, ${l.a}, ${l.z}, fra ${dk(b.f)}. Tag kørekort med. Når du står ved vognen, laver du den visuelle kontrol her.`
+    : 'Bekræftet. Kunden gennemgår vognen ved afhentning.';}
+  else if(b.fase==='bekraeftet'&&pickup&&!pickup.faults.length){tone='ok';nu=kunde
+    ? 'Kontrollen er godkendt. Afdelingen udleverer nøglen.'
+    : 'Kunden har godkendt kontrollen. Udlever nøglen og tryk Udlever trailer.';}
+  else if(b.fase==='bekraeftet'&&pickup&&pickup.faults.length){tone='bad';nu=kunde
+    ? `Der blev fundet fejl. Kontakt ${PARTNER} ${l.n} på 70 20 18 16 – vi finder en anden trailer.`
+    : 'Kunden fandt fejl ved afhentning. Traileren er spærret. Find en anden vogn til kunden.';}
+  else if(b.fase==='udleveret'){tone='ok';nu=kunde
+    ? `Du har traileren. Aflever den senest ${dk(b.t)} hos ${PARTNER} ${l.n}, og lav kontrollen ved aflevering.`
+    : `Hos kunden${b.by?' i '+esc(b.by):''}. Retur ${dk(b.t)}.`;}
+  else if(b.fase==='afleveret') nu=kunde?'Afleveret. Tak for lån.':'Afleveret og afsluttet.';
+  else if(b.fase==='afvist') {tone='bad';nu=kunde?'Afdelingen kunne ikke bekræfte bookingen.':'Afvist.';}
+
+  const trin=[['anmodet','Booket'],['bekraeftet','Bekræftet'],['udleveret','Udleveret'],['afleveret','Afleveret']];
+  const naaet=trin.findIndex(([k])=>k===b.fase);
+  const chain=`<div class="chain">${trin.map(([k,label],i)=>{
+    const on=b.fase!=='afvist'&&i<=naaet;
+    const naar=k==='anmodet'?dk(b.oprettet||b.f)
+      :k==='bekraeftet'?(b.bekraeftet?dk(b.bekraeftet):'')
+      :k==='udleveret'?(b.udleveret?dk(b.udleveret):dk(b.f))
+      :(b.fase==='afleveret'?dk(b.t):'');
+    return `<div class="step ${on?'':'off'}"><i style="background:${on?'var(--placed)':'var(--line)'}"></i>
+      <div><b>${label}</b><span>${on&&naar?naar:'ikke endnu'}</span></div></div>`}).join('')}</div>`;
 
   const left=`${t?`<div class="bigph" style="background-image:url(${IMG[t.t]})"></div>`:''}
+    <div class="concl ${tone}">${nu}</div>
     ${kunde?'':`<div class="kv"><span>Trailer</span><span>${b.r?`<a class="lnk" data-tr="${b.r}">${b.r}</a> · ${SPECS[t.t].navn}`:'ikke angivet'}</span></div>`}
     <div class="kv"><span>Periode</span><span>${dk(b.f)} – ${dk(b.t)}</span></div>
     <div class="kv"><span>${kunde?'Hentes hos':'Afdeling'}</span><span>${kunde?PARTNER+' '+esc(l.n):'Dagrofa '+esc(l.n)+' · '+l.c}</span></div>
     <div class="kv"><span>Adresse</span><span>${esc(l.a)}<br>${esc(l.z)}</span></div>
     ${kunde?'':`${b.att?`<div class="kv"><span>Kontaktperson</span><span>${esc(b.att)}</span></div>`:''}
       ${b.tlf?`<div class="kv"><span>Telefon</span><span>${esc(b.tlf)}</span></div>`:''}
-      <div class="kv"><span>Brugsadresse</span><span>${b.adr?esc(b.adr)+'<br>'+esc(b.post)+' '+esc(b.by):'ikke oplyst'}</span></div>
-      ${b.kt?`<div class="kv"><span>Konto</span><span>${esc(b.kt)}</span></div>`:''}`}`;
+      <div class="kv"><span>Brugsadresse</span><span>${b.adr?esc(b.adr)+'<br>'+esc(b.post)+' '+esc(b.by):'ikke oplyst'}</span></div>`}`;
 
   const inspBlock=i=>i
     ? `<div class="concl ${i.faults.length?'bad':'ok'}">${i.faults.length
@@ -930,28 +988,35 @@ function bookView(ptop,sc,godik){
        <br><br>${dk(i.at)} · ${esc(i.af)}</div>`
     : '<div class="sub">Ikke gennemført endnu.</div>';
 
-  const right=`<div class="h3">Kontrol ved afhentning</div>
-    ${inspBlock(pickup)}
-    ${!pickup&&b.state!=='Afsluttet'&&(kunde||S.app==='dagrofa')
-      ?`<button class="btn" data-form="check-afhentning-${b.o}">Start kontrol ved afhentning</button>`:''}
-    ${pickup&&pickup.faults.length?`<div class="alert" style="margin-top:12px"><b>Traileren må ikke køre</b>
-      <p>Kontakt ${kunde?PARTNER+' '+esc(l.n):'afdelingen'} på 70 20 18 16. Vi finder en anden trailer til dig.</p></div>`:''}
+  const handling=
+    (dag&&b.fase==='anmodet'?`<div class="h3">Ny anmodning</div>
+      <div style="display:flex;gap:9px"><button class="btn" style="margin:0" data-ok="${b.o}">Bekræft booking</button>
+      <button class="btn ghost" style="margin:0" data-no="${b.o}">Afvis</button></div>`:'')
+    +(dag&&b.fase==='bekraeftet'&&pickup&&!pickup.faults.length
+      ?`<div class="h3">Udlevering</div><button class="btn" data-out="${b.o}">Udlever trailer til kunden</button>`:'')
+    +(dag&&b.fase==='bekraeftet'&&!pickup
+      ?`<div class="h3">Udlevering</div><div class="sub">Afventer kundens kontrol ved afhentning.</div>`:'');
 
+  const right=`<div class="h3">Forløb</div>${chain}${handling}
+    <div class="h3">Kontrol ved afhentning</div>
+    ${inspBlock(pickup)}
+    ${!pickup&&b.fase==='bekraeftet'&&(kunde||dag)
+      ?`<button class="btn" data-form="check-afhentning-${b.o}">Start kontrol ved afhentning</button>`:''}
+    ${!pickup&&b.fase==='anmodet'?'<div class="sub">Kan først laves, når afdelingen har bekræftet.</div>':''}
     <div class="h3">Kontrol ved aflevering</div>
     ${inspBlock(ret)}
-    ${pickup&&!pickup.faults.length&&!ret&&(kunde||S.app==='dagrofa')
+    ${b.fase==='udleveret'&&!ret&&(kunde||dag)
       ?`<button class="btn" data-form="check-aflevering-${b.o}">Start kontrol ved aflevering</button>`:''}
-    ${!pickup?'<div class="sub">Kan først laves, når afhentningen er godkendt.</div>':''}
-
-    ${S.app==='dagrofa'&&b.state!=='Afsluttet'?`
-      <div class="h3">Handlinger</div>
-      <label class="f"><span>Ret slutdato</span><input class="i" type="date" id="b-til" value="${b.t}"></label>
+    ${b.fase!=='udleveret'&&!ret?'<div class="sub">Kan først laves, når traileren er udleveret.</div>':''}
+    ${dag&&b.fase!=='afleveret'&&b.fase!=='afvist'?`
+      <div class="h3">Ret bookingen</div>
+      <label class="f"><span>Slutdato</span><input class="i" type="date" id="b-til" value="${b.t}"></label>
       <button class="btn ghost" id="b-save">Gem ændring</button>
       <button class="btn ghost" id="b-cancel">Annuller bookingen</button>`:''}`;
 
   sc.innerHTML=`<div class="dgrid"><div>${left}</div><div>${right}</div></div>`;
 
-  if(S.app==='dagrofa'&&b.state!=='Afsluttet'){
+  if(dag&&b.fase!=='afleveret'&&b.fase!=='afvist'){
     const g=id=>document.getElementById(id);
     if(g('b-save')) g('b-save').onclick=()=>{
       const v=g('b-til').value; if(!v||D(v)<D(b.f))return toast('Slutdato skal ligge efter startdato');
@@ -983,9 +1048,9 @@ function bookingForm(ptop,sc){
       <label class="f" style="flex:1"><span>Fra</span><input class="i" type="date" id="k-f" value="${plus(0)}"></label>
       <label class="f" style="flex:1"><span>Til</span><input class="i" type="date" id="k-t" value="${plus(2)}"></label>
     </div>
-    <div class="sub" style="margin-top:10px">Når du henter traileren, gennemgår du en kort visuel
-      kontrol her på siden. Den tager to minutter.</div>
-    <button class="btn" id="k-save">Bekræft booking</button></div>`;
+    <div class="sub" style="margin-top:10px">Afdelingen bekræfter din booking, og du får besked her på siden.
+      Når du henter traileren, gennemgår du en kort visuel kontrol. Den tager to minutter.</div>
+    <button class="btn" id="k-save">Send booking</button></div>`;
   const g=id=>document.getElementById(id);
   g('k-post').oninput=e=>{const p=POSTNR[e.target.value.trim()];g('k-by').value=p?p[2]:''};
   g('k-save').onclick=()=>{
@@ -997,9 +1062,9 @@ function bookingForm(ptop,sc){
     if(!freeIn(t.r,f,ti)) return toast('Traileren er optaget i de dage. Vælg andre datoer.');
     const p=POSTNR[post], o='B-'+(5100+SUBS.filter(b=>String(b.o).startsWith('B-')).length+1);
     SUBS.push({o,r:t.r,l:t.l,f,t:ti,k:g('k-k').value.trim()||att,att,tlf,adr,post,by:p[2],
-      lat:p[0],lng:p[1],kt:'',st:'Aktiv'});
+      lat:p[0],lng:p[1],kt:'',st:'Aktiv',fase:'anmodet',oprettet:iso(TODAY)});
     S.mine.push(o); S.form=null; S.book=o; S.tab='min'; render();
-    toast('Booking bekræftet');
+    toast('Anmodningen er sendt til afdelingen');
   };
 }
 
@@ -1041,7 +1106,8 @@ function udlejForm(ptop,sc){
     const tr=byReg(r), p=POSTNR[post];
     const o='D-'+(4100+SUBS.filter(b=>String(b.o).startsWith('D-')).length+1);
     SUBS.push({o,r,l:tr.l,f,t,k,att:g('u-att').value.trim(),tlf,adr,post,by:p[2],
-      lat:p[0],lng:p[1],kt:g('u-kt').value.trim(),st:'Aktiv'});
+      lat:p[0],lng:p[1],kt:g('u-kt').value.trim(),st:'Aktiv',
+      fase:'bekraeftet',oprettet:iso(TODAY),bekraeftet:iso(TODAY)});
     S.form=null;S.book=o;render();
     toast('Udlejningen er oprettet');
   };
@@ -1095,10 +1161,10 @@ function checkForm(ptop,sc){
     if(list.length){
       /* Traileren spærres for nye bookinger, indtil afdelingen frigiver den. */
       t.blk={at:iso(TODAY),af:S.chkaf,phase,items:list};
-      if(phase==='aflevering'){b.st='Afsluttet';b.t=iso(TODAY)}
+      if(phase==='aflevering'){b.st='Afsluttet';b.fase='afleveret';b.t=iso(TODAY)}
     }else{
       if(phase==='afhentning') b.pickupOk=true;
-      else {b.st='Afsluttet';b.t=iso(TODAY)}
+      else {b.st='Afsluttet';b.fase='afleveret';b.t=iso(TODAY)}
     }
     S.form=null;S.chk={};S.cnotes={};S.chkaf='';S.book=b.o;
     render();
@@ -1147,7 +1213,7 @@ function toast(m){const el=document.getElementById('toast');el.textContent=m;el.
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-app],[data-tab],[data-loc],[data-tr],[data-svc],[data-back],[data-form],[data-book],[data-free],[data-order]');
+  const b=e.target.closest('[data-app],[data-tab],[data-loc],[data-tr],[data-svc],[data-back],[data-form],[data-book],[data-free],[data-order],[data-ok],[data-no],[data-out]');
   if(!b)return;
   if(b.dataset.app){
     S=Object.assign(S,{app:b.dataset.app,sel:null,trailer:null,svc:null,book:null,form:null,dept:null,chk:{},cnotes:{}});
@@ -1163,6 +1229,21 @@ document.addEventListener('click',e=>{
   else if(b.dataset.tr){const t=byReg(b.dataset.tr);S.trailer=t.r;S.sel=t.l;S.svc=null;S.book=null;focus(byLoc(t.l))}
   else if(b.dataset.svc){S.svc=b.dataset.svc}
   else if(b.dataset.book){S.book=b.dataset.book;S.trailer=null}
+  else if(b.dataset.ok){
+    const x=SUBS.find(v=>v.o===b.dataset.ok);
+    x.fase='bekraeftet'; x.bekraeftet=iso(TODAY);
+    toast('Bekræftet. Kunden kan hente '+dk(x.f));
+  }
+  else if(b.dataset.no){
+    const x=SUBS.find(v=>v.o===b.dataset.no);
+    x.fase='afvist'; x.st='Afsluttet';
+    toast('Bookingen er afvist, og kunden får besked');
+  }
+  else if(b.dataset.out){
+    const x=SUBS.find(v=>v.o===b.dataset.out);
+    x.fase='udleveret'; x.udleveret=iso(TODAY);
+    toast('Udleveret. Traileren står nu hos kunden på kortet.');
+  }
   else if(b.dataset.free){
     const t=byReg(b.dataset.free); t.blk=null;
     toast(t.r+' er frigivet og kan bookes igen');
