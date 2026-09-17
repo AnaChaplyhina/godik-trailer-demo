@@ -508,12 +508,6 @@ function drawMap(){
       <text class="lbl" x="${x}" y="${y+r+13+(l.lo||0)}">${l.n}</text></g>`}).join('');
 }
 
-gm.addEventListener('click',e=>{
-  const cb=e.target.closest('[data-book]');
-  if(cb&&!isKunde()){S.book=cb.dataset.book;S.trailer=null;render();return}
-  if(e.target.closest('[data-hq]')){S.sel=null;S.trailer=null;S.tab='flaade';setView(VB.slice());return render()}
-  const g=e.target.closest('[data-loc]');if(!g)return;
-  S.sel=g.dataset.loc;S.trailer=null;S.form=null;focus(byLoc(S.sel));render()});
 gm.addEventListener('mousemove',e=>{
   const h=e.target.closest('[data-hq]');
   if(h&&!isKunde()){const n=TRAILERS.filter(t=>t.atGodik).length;
@@ -533,37 +527,43 @@ const zoom=f=>{const v=view.slice(),cx=v[0]+v[2]/2,cy=v[1]+v[3]/2;
   v[2]*=f;v[3]*=f;v[0]=cx-v[2]/2;v[1]=cy-v[3]/2;setView(v)};
 zin.onclick=()=>zoom(.75); zout.onclick=()=>zoom(1/.75); zres.onclick=()=>setView(VB.slice());
 /* Kortet skal både kunne trækkes og klikkes.
-   Museklik må ikke opfanges af panoreringen, så vi fanger først markøren,
-   når fingeren eller musen faktisk har bevæget sig. */
-let drag=null, panned=false;
+   Vi fanger aldrig markøren, og vi venter ikke på browserens click-event,
+   fordi den med mus kan blive omdirigeret væk fra markøren. I stedet
+   afgør vi selv ved pointerup, om det var et klik eller et træk. */
+let drag=null;
+function mapPick(x,y){
+  const el=document.elementFromPoint(x,y);
+  return el?el.closest('[data-loc],[data-hq],[data-book]'):null;
+}
+function mapTap(g){
+  if(!g)return;
+  if(g.dataset.book&&!isKunde()){S.book=g.dataset.book;S.trailer=null;return render()}
+  if(g.dataset.hq!==undefined&&!isKunde()){
+    S.sel=null;S.trailer=null;S.tab='flaade';setView(VB.slice());return render()}
+  if(g.dataset.loc){S.sel=g.dataset.loc;S.trailer=null;S.form=null;S.page=null;
+    focus(byLoc(S.sel));return render()}
+}
 svg.addEventListener('pointerdown',e=>{
+  if(e.button&&e.button!==0)return;
   drag={x:e.clientX,y:e.clientY,v:view.slice(),id:e.pointerId,moved:false};
-  panned=false;
 });
-svg.addEventListener('pointermove',e=>{
+addEventListener('pointermove',e=>{
   if(!drag||e.pointerId!==drag.id)return;
   const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
-  if(!drag.moved){
-    if(Math.hypot(dx,dy)<5)return;            /* under 5 px er et klik, ikke et træk */
-    drag.moved=true;
-    try{svg.setPointerCapture(e.pointerId)}catch(_){}
-  }
+  if(!drag.moved&&Math.hypot(dx,dy)<8)return;      /* under 8 px regnes som et klik */
+  drag.moved=true;
   const k=view[2]/svg.clientWidth;
   setView([drag.v[0]-dx*k, drag.v[1]-dy*k, drag.v[2], drag.v[3]]);
 });
-function endDrag(e){
+let justPanned=false;
+addEventListener('pointerup',e=>{
   if(!drag)return;
-  if(drag.moved){
-    panned=true;                               /* undertryk klikket efter et træk */
-    try{svg.releasePointerCapture(drag.id)}catch(_){}
-    setTimeout(()=>panned=false,0);
-  }
+  const moved=drag.moved, x=e.clientX, y=e.clientY;
   drag=null;
-}
-svg.addEventListener('pointerup',endDrag);
-svg.addEventListener('pointercancel',endDrag);
-addEventListener('pointerup',endDrag);
-svg.addEventListener('click',e=>{ if(panned){e.stopPropagation();e.preventDefault()} },true);
+  if(moved){justPanned=true;setTimeout(()=>justPanned=false,60);return}
+  mapTap(mapPick(x,y));
+});
+addEventListener('pointercancel',()=>drag=null);
 
 /* ---------- byggeklodser ---------- */
 function pill(state){const s=STATE[state];return `<span class="pill"><i style="background:${s[0]}"></i>${s[1]}</span>`}
@@ -1349,6 +1349,7 @@ function toast(m){const el=document.getElementById('toast');el.textContent=m;el.
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
+  if(justPanned&&e.target.closest('svg#map'))return;
   const b=e.target.closest('[data-app],[data-tab],[data-loc],[data-tr],[data-svc],[data-back],[data-form],[data-book],[data-free],[data-order],[data-ok],[data-no],[data-out],[data-page]');
   if(!b)return;
   if(b.dataset.app){
